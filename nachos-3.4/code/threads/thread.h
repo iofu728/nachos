@@ -77,6 +77,8 @@ class Thread {
   // THEY MUST be in this position for SWITCH to work.
   int *stackTop;                         // the current stack pointer
   void *machineState[MachineStateSize];  // all registers except for stackTop
+  int uid;                               // lab1 use id
+  int tid;                               // lab1 thread id
 
  public:
   Thread(char *debugName);  // initialize a Thread
@@ -93,12 +95,17 @@ class Thread {
   void Sleep();                                // Put the thread to sleep and
                                                // relinquish the processor
   void Finish();                               // The thread is done executing
+  void CheckOverflow();                        // Check if thread has
+                                               // overflowed its stack
 
-  void CheckOverflow();  // Check if thread has
-                         // overflowed its stack
-  void setStatus(ThreadStatus st) { status = st; }
-  char *getName() { return (name); }
-  void Print() { printf("%s, ", name); }
+  int getStatus() { return status; }                         // lab1 get Status
+  void setStatus(ThreadStatus st) { status = st; }           //
+  char *getName() { return (name); }                         //
+  void Print() { printf("%s, %d, %d,\n", name, uid, tid); }  //
+  int getUid() { return uid; }                               // lab1 get uid
+  void setUid(int userId) { uid = userId; }                  // lab1 set uid
+  int getTid() { return tid; }                               // lab1 get tid
+  void setTid(int threadId) { tid = threadId; }              // lab1 set tid
 
  private:
   // some of the private data for this class is listed above

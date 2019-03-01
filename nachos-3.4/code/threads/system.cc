@@ -19,6 +19,10 @@ Statistics *stats;            // performance metrics
 Timer *timer;                 // the hardware timer device,
                               // for invoking context switches
 
+#define MaxThreadNum 128
+bool threadQueue[MaxThreadNum];  // lab1 thread queue
+Thread *thread[MaxThreadNum];
+
 #ifdef FILESYS_NEEDED
 FileSystem *fileSystem;
 #endif
@@ -73,6 +77,8 @@ void Initialize(int argc, char **argv) {
   int argCount;
   char *debugArgs = "";
   bool randomYield = FALSE;
+
+  memset(threadQueue, 0, sizeof(threadQueue));  // lab1 init thread queue
 
 #ifdef USER_PROGRAM
   bool debugUserProg = FALSE;  // single step user program

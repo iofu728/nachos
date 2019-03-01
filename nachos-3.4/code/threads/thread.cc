@@ -38,6 +38,19 @@ Thread::Thread(char *threadName) {
   stackTop = NULL;
   stack = NULL;
   status = JUST_CREATED;
+
+  int i = 0;
+  while (i < MaxThreadNum && threadQueue[i] == true) ++i;  // lab1 allocate tid
+  if (i < MaxThreadNum && threadQueue[i] == false) {
+    threadQueue[i] = true;
+    this->tid = i;
+    thrad[i] = this;
+    break;
+  } else {
+    printf("The size of thread more than 128!!! Please Check!\n", );
+    exit(0);
+  }
+
 #ifdef USER_PROGRAM
   space = NULL;
 #endif
@@ -61,6 +74,9 @@ Thread::~Thread() {
   ASSERT(this != currentThread);
   if (stack != NULL)
     DeallocBoundedArray((char *)stack, StackSize * sizeof(int));
+
+  threadQueue[this->tid] = false;  // lab1 recycle tid
+  thread[this->tid] = NULL;
 }
 
 //----------------------------------------------------------------------
