@@ -52,7 +52,6 @@ void ThreadTest1() {
 //----------lab1-Test-Begin--------------------------------------------
 
 void Lab1Thread(int someone) {
-  printf("Write by Jiang Huiqiang 1801210840\n");
   for (int i = 0; i <= 6; ++i) {
     printf("threadname: %s tid: %d uid: %d  looped %d times\n",
            currentThread->getName(), currentThread->getTid(),
@@ -62,6 +61,7 @@ void Lab1Thread(int someone) {
 }
 
 void Lab1Test() {
+  printf("Write by Jiang Huiqiang 1801210840\n");
   Thread *t1 = new Thread("thread1");
   Thread *t2 = new Thread("thread2");
   Thread *t3 = new Thread("thread3");
