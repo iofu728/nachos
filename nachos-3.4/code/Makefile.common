@@ -1,19 +1,19 @@
 # This is part of a GNU Makefile, included by the Makefiles in
-# each of the subdirectories.  
+# each of the subdirectories.
 #
 # This file includes all of the baseline code provided by Nachos.
-# Whenever you add a .h or .cc file, put it in the appropriate 
+# Whenever you add a .h or .cc file, put it in the appropriate
 # _H,_C, or _O list.
 #
 # The dependency graph between assignments is:
 #   1. THREADS before everything else
 #   2. USERPROG must come before VM
-#   3. USERPROG can come before or after FILESYS, but if USERPROG comes 
+#   3. USERPROG can come before or after FILESYS, but if USERPROG comes
 #	before (as in this distribution), then it must define FILESYS_STUB
 #
 #   Other than that, you have complete flexibility.
 #
-# Also whenever you change the include structure of your program, you should 
+# Also whenever you change the include structure of your program, you should
 # do a gmake depend in the subdirectory -- this will modify the Makefile
 # to keep track of the new dependency.
 
@@ -22,10 +22,10 @@
 # you need to call some inline functions from the debugger.
 
 # Copyright (c) 1992 The Regents of the University of California.
-# All rights reserved.  See copyright.h for copyright notice and limitation 
+# All rights reserved.  See copyright.h for copyright notice and limitation
 # of liability and disclaimer of warranty provisions.
 
-CFLAGS = -g -Wall -Wshadow -fpermissive $(INCPATH) $(DEFINES) $(HOST) -DCHANGED 
+CFLAGS = -g -Wall -Wshadow -fpermissive $(INCPATH) $(DEFINES) $(HOST) -DCHANGED
 
 # These definitions may change as the software is updated.
 # Some of them are also system dependent
@@ -94,9 +94,9 @@ USERPROG_C = ../userprog/addrspace.cc\
 USERPROG_O = addrspace.o bitmap.o exception.o progtest.o console.o machine.o \
 	mipssim.o translate.o
 
-VM_H = 
-VM_C = 
-VM_O = 
+VM_H =
+VM_C =
+VM_O =
 
 FILESYS_H =../filesys/directory.h \
 	../filesys/filehdr.h\
@@ -138,7 +138,7 @@ depend: $(CFILES) $(HFILES)
 	echo '$$r makedep' >>eddep
 	echo 'w' >>eddep
 	ed - Makefile < eddep
-	rm eddep makedep 
+	rm eddep makedep
 	echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
 	echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
 	echo '# see make depend above' >> Makefile
