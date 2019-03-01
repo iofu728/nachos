@@ -52,7 +52,7 @@ void ThreadTest1() {
 //----------lab1-Test-Begin--------------------------------------------
 
 void Lab1Thread(int someone) {
-  for (int i = 0; i <= 6; ++i) {
+  for (int i = 0; i <= 3; ++i) {
     printf("threadname: %s tid: %d uid: %d  looped %d times\n",
            currentThread->getName(), currentThread->getTid(),
            currentThread->getUid(), i);
@@ -62,15 +62,24 @@ void Lab1Thread(int someone) {
 
 void Lab1Test() {
   printf("Write by Jiang Huiqiang 1801210840\n");
-  Thread *t1 = new Thread("thread1");
-  Thread *t2 = new Thread("thread2");
-  Thread *t3 = new Thread("thread3");
-  t1->setUid(1);
-  t2->setUid(2);
-  t3->setUid(3);
+  Thread *t1 = new Thread("Thread1");
+  Thread *t2 = new Thread("Thread2");
+  Thread *t3 = new Thread("Thread3");
+  Thread *t4 = new Thread("Thread4");
+  Thread *t5 = new Thread("Thread5");
+  Thread *t6 = new Thread("Thread6");
+  t1->setUid(111);
+  t2->setUid(222);
+  t3->setUid(333);
+  t4->setUid(444);
+  t5->setUid(555);
+  t6->setUid(666);
   t1->Fork(Lab1Thread, (void *)1);
   t2->Fork(Lab1Thread, (void *)1);
   t3->Fork(Lab1Thread, (void *)1);
+  t4->Fork(Lab1Thread, (void *)1);
+  t5->Fork(Lab1Thread, (void *)1);
+  t6->Fork(Lab1Thread, (void *)1);
   Lab1Thread(0);
 }
 
