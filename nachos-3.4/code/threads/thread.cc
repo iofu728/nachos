@@ -44,11 +44,10 @@ Thread::Thread(char *threadName) {
   if (i < MaxThreadNum && threadQueue[i] == false) {
     threadQueue[i] = true;
     this->tid = i;
-    thrad[i] = this;
-    break;
+    thread[i] = this;
   } else {
-    printf("The size of thread more than 128!!! Please Check!\n", );
-    exit(0);
+    printf("The size of thread more than 128!!! Please Check!\n");
+    Exit(0);
   }
 
 #ifdef USER_PROGRAM
