@@ -63,6 +63,7 @@ extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
 extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
+extern void PrintThreadInfo();  // lab1 TS
 
 //----------------------------------------------------------------------
 // main
@@ -96,6 +97,10 @@ int main(int argc, char **argv) {
       default:
         testnum = 1;
         break;
+    }
+    if (argv[0][0] == 'T' && argv[0][1] == 'S' && argv[0][2] == '\0') {
+      Thread *TS = new Thread("TS");
+      TS->Fork(PrintThreadInfo, (void *)1);
     }
   }
 
@@ -165,5 +170,5 @@ int main(int argc, char **argv) {
                             // to those threads by saying that the
                             // "main" thread is finished, preventing
                             // it from returning.
-  return (0);  // Not reached...
+  return (0);               // Not reached...
 }

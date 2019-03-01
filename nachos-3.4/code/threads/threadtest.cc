@@ -49,6 +49,47 @@ void ThreadTest1() {
   SimpleThread(0);
 }
 
+//----------lab1-Test-Begin--------------------------------------------
+
+void Lab1Thread(int someone) {
+  for (int i = 0; i <= 3; ++i) {
+    printf("threadname: %s tid: %d uid: %d  looped %d times\n",
+           currentThread->getName(), currentThread->getTid(),
+           currentThread->getUid(), i);
+    currentThread->Yield();
+  }
+}
+
+void Lab1Test() {
+  Thread *t1 = new Thread("thread1");
+  Thread *t2 = new Thread("thread2");
+  Thread *t3 = new Thread("thread3");
+  t1->setUid(1);
+  t2->setUid(2);
+  t3->setUid(3);
+  t1->Fork(Lab1Thread, (void *)1);
+  t2->Fork(Lab1Thread, (void *)1);
+  t3->Fork(Lab1Thread, (void *)1);
+  Lab1Thread(0);
+}
+
+void TestThreadNumExceed() {
+  for (int i = 1; i <= 128; ++i) {
+    Thread *t = new Thread("testThread");
+    printf("creat thread %d\n", i);
+  }
+}
+
+void PrintThreadInfo() {
+  printf("threadname-----tid-----uid-----status\n");
+  for (int i = 0; i < MaxThreadNum; ++i) {
+    if (thread[i] != NULL) {
+      thread[i]->Print();
+    }
+  }
+}
+//----------lab1-Test-End-----------------------------------------------
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -57,7 +98,7 @@ void ThreadTest1() {
 void ThreadTest() {
   switch (testnum) {
     case 1:
-      ThreadTest1();
+      Lab1Test();
       break;
     default:
       printf("No test specified.\n");

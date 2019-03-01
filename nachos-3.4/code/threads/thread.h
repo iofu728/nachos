@@ -57,6 +57,10 @@
 // Thread state
 enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
 
+// lab1 ThreadStatusString
+const char ThreadStatusString[4][15] = {"JUST_CREATED", "RUNNING", "READY",
+                                        "BLOCKED"};
+
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint(int arg);
 
@@ -98,14 +102,17 @@ class Thread {
   void CheckOverflow();                        // Check if thread has
                                                // overflowed its stack
 
-  int getStatus() { return status; }                         // lab1 get Status
-  void setStatus(ThreadStatus st) { status = st; }           //
-  char *getName() { return (name); }                         //
-  void Print() { printf("%s, %d, %d,\n", name, uid, tid); }  //
-  int getUid() { return uid; }                               // lab1 get uid
-  void setUid(int userId) { uid = userId; }                  // lab1 set uid
-  int getTid() { return tid; }                               // lab1 get tid
-  void setTid(int threadId) { tid = threadId; }              // lab1 set tid
+  int getStatus() { return status; }                // lab1 get Status
+  void setStatus(ThreadStatus st) { status = st; }  //
+  char *getName() { return (name); }                //
+  void Print() {                                    //
+    printf("%s, %d, :q:%d, %s,\n", name, uid, tid,  //
+           ThreadStatusString[getStatus()]);        //
+  }                                                 //
+  int getUid() { return uid; }                      // lab1 get uid
+  void setUid(int userId) { uid = userId; }         // lab1 set uid
+  int getTid() { return tid; }                      // lab1 get tid
+  void setTid(int threadId) { tid = threadId; }     // lab1 set tid
 
  private:
   // some of the private data for this class is listed above
