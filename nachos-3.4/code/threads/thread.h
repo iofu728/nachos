@@ -102,17 +102,18 @@ class Thread {
   void CheckOverflow();                        // Check if thread has
                                                // overflowed its stack
 
-  int getStatus() { return status; }                // lab1 get Status
-  void setStatus(ThreadStatus st) { status = st; }  //
-  char *getName() { return (name); }                //
-  void Print() {                                    //
-    printf("%s, %d, :q:%d, %s,\n", name, uid, tid,  //
-           ThreadStatusString[getStatus()]);        //
-  }                                                 //
-  int getUid() { return uid; }                      // lab1 get uid
-  void setUid(int userId) { uid = userId; }         // lab1 set uid
-  int getTid() { return tid; }                      // lab1 get tid
-  void setTid(int threadId) { tid = threadId; }     // lab1 set tid
+  int getStatus() { return status; }                     // lab1 get Status
+  void setStatus(ThreadStatus st) { status = st; }       //
+  char *getName() { return name; }                       //
+  void setName(char *threadName) { name = threadName; }  // lab1 set thread name
+  void Print() {                                         //
+    printf("%s, %d, :q:%d, %s,\n", name, uid, tid,       //
+           ThreadStatusString[getStatus()]);             //
+  }                                                      //
+  int getUid() { return uid; }                           // lab1 get uid
+  void setUid(int userId) { uid = userId; }              // lab1 set uid
+  int getTid() { return tid; }                           // lab1 get tid
+  void setTid(int threadId) { tid = threadId; }          // lab1 set tid
 
  private:
   // some of the private data for this class is listed above

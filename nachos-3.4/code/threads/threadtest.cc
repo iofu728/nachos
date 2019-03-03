@@ -1,9 +1,9 @@
 // threadtest.cc
-//	Simple test case for the threads assignment.
+//  Simple test case for the threads assignment.
 //
-//	Create two threads, and have them context switch
-//	back and forth between themselves by calling Thread::Yield,
-//	to illustratethe inner workings of the thread system.
+//  Create two threads, and have them context switch
+//  back and forth between themselves by calling Thread::Yield,
+//  to illustratethe inner workings of the thread system.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
@@ -18,11 +18,11 @@ int testnum = 1;
 
 //----------------------------------------------------------------------
 // SimpleThread
-// 	Loop 5 times, yielding the CPU to another ready thread
-//	each iteration.
+//  Loop 5 times, yielding the CPU to another ready thread
+//  each iteration.
 //
-//	"which" is simply a number identifying the thread, for debugging
-//	purposes.
+//  "which" is simply a number identifying the thread, for debugging
+//  purposes.
 //----------------------------------------------------------------------
 
 void SimpleThread(int which) {
@@ -36,8 +36,8 @@ void SimpleThread(int which) {
 
 //----------------------------------------------------------------------
 // ThreadTest1
-// 	Set up a ping-pong between two threads, by forking a thread
-//	to call SimpleThread, and then calling SimpleThread ourselves.
+//  Set up a ping-pong between two threads, by forking a thread
+//  to call SimpleThread, and then calling SimpleThread ourselves.
 //----------------------------------------------------------------------
 
 void ThreadTest1() {
@@ -51,8 +51,8 @@ void ThreadTest1() {
 
 //----------lab1-Test-Begin--------------------------------------------
 
-void Lab1Thread(int someone) {
-  for (int i = 0; i <= 6; ++i) {
+void Lab1Thread() {
+  for (int i = 0; i <= 3; ++i) {
     printf("threadname: %s tid: %d uid: %d  looped %d times\n",
            currentThread->getName(), currentThread->getTid(),
            currentThread->getUid(), i);
@@ -60,25 +60,11 @@ void Lab1Thread(int someone) {
   }
 }
 
-void Lab1Test() {
-  printf("Write by Jiang Huiqiang 1801210840\n");
-  Thread *t1 = new Thread("thread1");
-  Thread *t2 = new Thread("thread2");
-  Thread *t3 = new Thread("thread3");
-  t1->setUid(1);
-  t2->setUid(2);
-  t3->setUid(3);
-  t1->Fork(Lab1Thread, (void *)1);
-  t2->Fork(Lab1Thread, (void *)1);
-  t3->Fork(Lab1Thread, (void *)1);
-  Lab1Thread(0);
-}
-
-void TestThreadNumExceed() {
-  for (int i = 1; i <= 128; ++i) {
-    Thread *t = new Thread("testThread");
-    printf("creat thread %d\n", i);
-  }
+Thread *createThreadTest(int num, char *threadNameList) {
+  Thread *temp = new Thread(threadNameList);
+  temp->setUid(num);
+  temp->Fork(Lab1Thread, (void *)1);
+  return temp;
 }
 
 void PrintThreadInfo() {
@@ -89,11 +75,34 @@ void PrintThreadInfo() {
     }
   }
 }
+
+void Lab1Test() {
+  printf("Write by Jiang Huiqiang 1801210840\n");
+  Thread *threadLists[MaxThreadNum + 1];
+  char threadNameList[MaxThreadNum][20] = {};
+
+  for (int i = 0; i < MaxThreadNum - 1; ++i) {
+    char str[20];
+    sprintf(str, "%d", i);
+    strcat(threadNameList[i], "Thread");
+    strcat(threadNameList[i], str);
+    threadLists[i] = createThreadTest(i, threadNameList[i]);
+  }
+  Lab1Thread();
+}
+
+void TestThreadNumExceed() {
+  for (int i = 1; i <= 128; ++i) {
+    Thread *t = new Thread("testThread");
+    printf("creat thread %d\n", i);
+  }
+}
+
 //----------lab1-Test-End-----------------------------------------------
 
 //----------------------------------------------------------------------
 // ThreadTest
-// 	Invoke a test routine.
+//  Invoke a test routine.
 //----------------------------------------------------------------------
 
 void ThreadTest() {
