@@ -24,7 +24,9 @@
   0xdeadbeef  // this is put at the top of the
               // execution stack, for detecting
               // stack overflows
+#define MinSwitchTick 50
 
+int lastTick = -100;  // lab2 Challenge 1
 //----------------------------------------------------------------------
 // Thread::Thread
 // 	Initialize a thread control block, so that we can then call
@@ -44,6 +46,7 @@ Thread::Thread(char *threadName) {
   if (i < MaxThreadNum && threadQueue[i] == false) {
     threadQueue[i] = true;
     this->tid = i;
+    this->priority = 4;  // lab2 init priority
     thread[i] = this;
   } else {
     printf("The size of thread more than 128!!! Please Check!\n");
@@ -188,10 +191,31 @@ void Thread::Yield() {
   DEBUG('t', "Yielding thread \"%s\"\n", getName());
 
   nextThread = scheduler->FindNextToRun();
-  if (nextThread != NULL) {
-    scheduler->ReadyToRun(this);
-    scheduler->Run(nextThread);
-  }
+
+  int interval = stats->systemTicks - lastTick;  // lab2 Challenge 1
+  printf("Interval Time is: %d ms\n", interval);
+  if (nextThread != NULL)
+    if (interval < MinSwitchTick) {
+      printf("NextPrio: %d; CurrentPrio: %d\n", nextThread->getPriority(),
+             this->getPriority());
+      if (nextThread->getPriority() < this->getPriority()) {
+        lastTick = stats->systemTicks;
+        printf("Switch 1\n");
+        scheduler->ReadyToRun(this);
+        scheduler->Run(nextThread);
+      } else {
+        // printf("Wait\n");
+        scheduler->ReadyToRun(nextThread);
+      }
+    } else {
+      lastTick = stats->systemTicks;
+      printf("NextPrio: %d; CurrentPrio: %d\n", nextThread->getPriority(),
+             this->getPriority());
+      printf("Switch 2\n");
+      scheduler->ReadyToRun(this);
+      scheduler->Run(nextThread);
+    }
+
   (void)interrupt->SetLevel(oldLevel);
 }
 

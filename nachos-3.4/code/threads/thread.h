@@ -83,6 +83,7 @@ class Thread {
   void *machineState[MachineStateSize];  // all registers except for stackTop
   int uid;                               // lab1 use id
   int tid;                               // lab1 thread id
+  int priority;                          // lab2 priority
 
  public:
   Thread(char *debugName);  // initialize a Thread
@@ -114,6 +115,8 @@ class Thread {
   void setUid(int userId) { uid = userId; }              // lab1 set uid
   int getTid() { return tid; }                           // lab1 get tid
   void setTid(int threadId) { tid = threadId; }          // lab1 set tid
+  int getPriority() { return priority; }                 // lab2 get priority
+  void setPriority(int prio) { priority = prio; }        // lab2 set priority
 
  private:
   // some of the private data for this class is listed above
