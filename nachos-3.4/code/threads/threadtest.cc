@@ -78,7 +78,6 @@ void PrintThreadInfo() {
 
 void Lab1Test() {
   printf("Write by Jiang Huiqiang 1801210840\n");
-  Thread *threadLists[MaxThreadNum + 1];
   char threadNameList[MaxThreadNum][20] = {};
 
   for (int i = 0; i < MaxThreadNum - 1; ++i) {
@@ -86,7 +85,7 @@ void Lab1Test() {
     sprintf(str, "%d", i);
     strcat(threadNameList[i], "Thread");
     strcat(threadNameList[i], str);
-    threadLists[i] = createThreadTest(i, threadNameList[i]);
+    createThreadTest(i, threadNameList[i]);
   }
   Lab1Thread();
 }
@@ -100,6 +99,75 @@ void TestThreadNumExceed() {
 
 //----------lab1-Test-End-----------------------------------------------
 
+//----------lab2-Test-Begin---------------------------------------------
+
+void Lab2Thread(int n) {
+  for (int i = 0; i <= n; ++i) {
+    printf("threadname: %s tid: %d uid: %d priority: %d looped %d times\n",
+           currentThread->getName(), currentThread->getTid(),
+           currentThread->getUid(), currentThread->getPriority(), i);
+    currentThread->Yield();
+  }
+}
+
+void Challenge1Thread(int n) {
+  for (int i = 1; i <= n; ++i) {
+    printf("threadname: %s tid: %d uid: %d priority: %d looped %d times\n",
+           currentThread->getName(), currentThread->getTid(),
+           currentThread->getUid(), currentThread->getPriority(), i);
+    // interrupt->SetLevel(IntOn);
+    currentThread->Yield();
+    // interrupt->SetLevel(IntOff);
+  }
+}
+
+Thread *createThreadLab2Test(int num, int priority, char *threadNameList,
+                             int loop, int type) {
+  Thread *temp = new Thread(threadNameList);
+  temp->setUid(num);
+  temp->setPriority(priority);
+  if (type) {
+    temp->Fork(Lab2Thread, (void *)loop);
+  } else {
+    temp->Fork(Challenge1Thread, (void *)loop);
+  }
+
+  return temp;
+}
+
+void Lab2Test() {
+  printf("Write by Jiang Huiqiang 1801210840 in 2019-03-08\n");
+  char threadNameList[MaxThreadNum][20] = {};
+  int priorityList[MaxThreadNum] = {3, 1, 5, 4};
+
+  for (int i = 0; i < 4; ++i) {
+    char str[20];
+    sprintf(str, "%d", i);
+    strcat(threadNameList[i], "Thread");
+    strcat(threadNameList[i], str);
+    createThreadLab2Test(i, priorityList[i], threadNameList[i], 3, 1);
+  }
+
+  Lab2Thread(3);
+}
+
+void Challenge1Test() {
+  printf("Write by Jiang Huiqiang 1801210840 in 2019-03-08\n");
+  char threadNameList[MaxThreadNum][20] = {};
+  int priorityList[MaxThreadNum] = {3, 3, 5, 4};
+
+  for (int i = 0; i < 4; ++i) {
+    char str[20];
+    sprintf(str, "%d", i);
+    strcat(threadNameList[i], "Thread");
+    strcat(threadNameList[i], str);
+    createThreadLab2Test(i, priorityList[i], threadNameList[i], 10, 0);
+  }
+  Challenge1Thread(10);
+}
+
+//----------lab2-Test-End-----------------------------------------------
+
 //----------------------------------------------------------------------
 // ThreadTest
 //  Invoke a test routine.
@@ -108,7 +176,7 @@ void TestThreadNumExceed() {
 void ThreadTest() {
   switch (testnum) {
     case 1:
-      Lab1Test();
+      Challenge1Test();
       break;
     default:
       printf("No test specified.\n");
