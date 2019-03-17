@@ -11,6 +11,7 @@
 
 #include "copyright.h"
 #include "elevatortest.h"
+#include "synch.h"
 #include "system.h"
 
 // testnum is set in main.cc
@@ -168,6 +169,171 @@ void Challenge1Test() {
 
 //----------lab2-Test-End-----------------------------------------------
 
+//----------lab3-Test-Begin---------------------------------------------
+#define Buffersize 4
+Semaphore *Mutex = new Semaphore("Mutex", 1);
+Semaphore *Empty = new Semaphore("Empty", Buffersize);
+Semaphore *Full = new Semaphore("Full", 0);
+int itemnum = 0;
+
+Lock *CLock = new Lock("Condition Lock");
+Condition *ConditionFull = new Condition("Condition Full");
+Condition *ConditionEmpty = new Condition("Condition Empty");
+
+Barrier *barrier = new Barrier("barrier", 5);
+
+ReadWrite *rwLock = new ReadWrite("Read Write");
+
+void Producer(int n) {
+  for (int i = 0; i < n; ++i) {
+    Empty->P();
+    Mutex->P();
+    ++itemnum;
+    printf(
+        "Thread %s tid: %d uid: %d priority: %d, PPPProduce the "
+        "item, there are %d items in buffer\n",
+        currentThread->getName(), currentThread->getTid(),
+        currentThread->getUid(), currentThread->getPriority(), itemnum);
+    Mutex->V();
+    Full->V();
+    currentThread->Yield();
+  }
+}
+
+void Comsumer(int n) {
+  for (int i = 0; i < n; ++i) {
+    Full->P();
+    Mutex->P();
+    --itemnum;
+    printf(
+        "Thread %s tid: %d uid: %d priority: %d, CCCComsumer the "
+        "item, there are %d items in buffer\n",
+        currentThread->getName(), currentThread->getTid(),
+        currentThread->getUid(), currentThread->getPriority(), itemnum);
+    Mutex->V();
+    Empty->V();
+    currentThread->Yield();
+  }
+}
+
+void ProducerCondition(int n) {
+  for (int i = 0; i < n; ++i) {
+    CLock->Acquire();
+    if (itemnum == Buffersize) {
+      printf("-----------------Thread %s Waiting-----------------%s\n",
+             currentThread->getName(), ConditionFull->getName());
+      ConditionFull->Wait(CLock);
+    }
+    ++itemnum;
+    printf(
+        "Thread %s tid: %d uid: %d priority: %d, PPPProduceCondition the "
+        "item, there are %d items in buffer\n",
+        currentThread->getName(), currentThread->getTid(),
+        currentThread->getUid(), currentThread->getPriority(), itemnum);
+    if (!itemnum) {
+      printf("-----------------Thread %s Wakeup-----------------%s\n",
+             currentThread->getName(), ConditionEmpty->getName());
+      ConditionEmpty->Signal(CLock);
+    }
+    CLock->Release();
+    currentThread->Yield();
+  }
+}
+
+void ComsumerCondiction(int n) {
+  for (int i = 0; i < n; ++i) {
+    CLock->Acquire();
+    if (!itemnum) {
+      printf("-----------------Thread %s Waiting-----------------%s\n",
+             currentThread->getName(), ConditionEmpty->getName());
+      ConditionEmpty->Wait(CLock);
+    }
+    --itemnum;
+
+    printf(
+        "Thread %s tid: %d uid: %d priority: %d, CCCComsumerCondition the "
+        "item, there are %d items in buffer\n",
+        currentThread->getName(), currentThread->getTid(),
+        currentThread->getUid(), currentThread->getPriority(), itemnum);
+
+    if (itemnum == Buffersize) {
+      printf("-----------------Thread %s Wakeup-----------------%s\n",
+             currentThread->getName(), ConditionFull->getName());
+      ConditionFull->Signal(CLock);
+    }
+    CLock->Release();
+    currentThread->Yield();
+  }
+}
+
+void BarrierTestThread() { barrier->setBarrier(); }
+
+void Reader(int n) {
+  rwLock->ReadAcquire();
+  for (int i = 0; i < n; ++i)
+    printf("***** Thread %s **** Read \n", currentThread->getName());
+  rwLock->ReadRelease();
+}
+
+void Writer(int n) {
+  rwLock->WriteAcquire();
+  for (int i = 0; i < n; ++i)
+    printf("***** Thread %s **** Write \n", currentThread->getName());
+  rwLock->WriteRelease();
+}
+
+Thread *createThreadLab3Test(int num, int priority, char *threadNameList,
+                             int loop, int type, int method) {
+  Thread *temp = new Thread(threadNameList);
+  temp->setUid(num);
+  temp->setPriority(priority);
+
+  if (!method && type) {
+    temp->Fork(Producer, (void *)loop);
+  } else if (!method) {
+    temp->Fork(Comsumer, (void *)loop);
+  } else if (method == 1 && type) {
+    temp->Fork(ProducerCondition, (void *)loop);
+  } else if (method == 1) {
+    temp->Fork(ComsumerCondiction, (void *)loop);
+  } else if (method == 2) {
+    temp->Fork(BarrierTestThread, (void *)loop);
+  } else if (method == 3 && type) {
+    temp->Fork(Reader, (void *)loop);
+  } else {
+    temp->Fork(Writer, (void *)loop);
+  }
+
+  return temp;
+}
+
+void Lab3Test() {
+  printf("Write by Jiang Huiqiang 1801210840 in 2019-03-17\n");
+  char threadNameList[MaxThreadNum][20] = {};
+  int priorityList[MaxThreadNum] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
+  int readWriteList[MaxThreadNum] = {1, 1, 0, 1, 0, 1, 0, 1, 1, 0};
+  int model = 3;
+
+  if (model == 2)
+    printf("............ Two Phase Protocol begin ............\n");
+
+  for (int i = 0; i < 10; ++i) {
+    char str[20];
+    sprintf(str, "%d", i);
+    strcat(threadNameList[i], "Thread");
+    strcat(threadNameList[i], str);
+    if (model == 3)
+      createThreadLab3Test(i, priorityList[i], threadNameList[i], 5,
+                           readWriteList[i], model);
+    else
+      createThreadLab3Test(i, priorityList[i], threadNameList[i], 5,
+                           i < 5 ? 1 : 0, model);
+  }
+  if (model == 2)
+    printf("-------***------- Consumer Phase End -------***-------\n");
+}
+//----------lab3-Test-End-----------------------------------------------
+
 //----------------------------------------------------------------------
 // ThreadTest
 //  Invoke a test routine.
@@ -176,7 +342,7 @@ void Challenge1Test() {
 void ThreadTest() {
   switch (testnum) {
     case 1:
-      Challenge1Test();
+      Lab3Test();
       break;
     default:
       printf("No test specified.\n");
