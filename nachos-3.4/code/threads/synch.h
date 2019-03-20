@@ -78,8 +78,10 @@ class Lock {
                                  // Condition variable ops below.
 
  private:
-  char* name;  // for debugging
-               // plus some other stuff you'll need to define
+  char* name;        // for debugging
+                     // plus some other stuff you'll need to define
+  Semaphore* mutex;  // lab 3 add mutex
+  Thread* thread;    // lab 3 add thread
 };
 
 // The following class defines a "condition variable".  A condition
@@ -128,9 +130,57 @@ class Condition {
   void Signal(Lock* conditionLock);     // conditionLock must be held by
   void Broadcast(Lock* conditionLock);  // the currentThread for all of
                                         // these operations
+  void BroadcastPhase(Lock* conditionLock);  // phase broadcastphase
+  void AcquirePhase();                       // get phase broadcastphase
+  void ReleasePhase();                       // get phase broadcastphase
+
+ private:
+  char* name;       // plus some other stuff you'll need to define
+  Lock* phase;      // two phase lock protocol lab 3 challenge 1
+  List* waitQueue;  // lab 3 add waitQueue
+};
+
+// Barrier Class
+//
+// Lab 3 Challenge 1
+
+class Barrier {
+ public:
+  Barrier(char* debugName, int n);  // initialize Barrier
+  ~Barrier();                       // deallocate the Barrier
+
+  char* getName() { return name; };  // get name
+  void setBarrier();                 // set Barrier
 
  private:
   char* name;
-  // plus some other stuff you'll need to define
+  int waitNum;    // wait num of threads
+  int totalNum;   // total num
+  Lock* bl;       // Barrier Lock
+  Condition* bc;  // Barrier Condition
 };
+
+// ReadWrite Class
+//
+// Lab 3 Challenge 2
+
+class ReadWrite {
+ public:
+  ReadWrite(char* debugName);  // initialize ReadWrite
+  ~ReadWrite();                // deallocate the ReadWrite
+
+  char* getName() { return name; };  // get name
+  void ReadAcquire();                // read lock acquire
+  void ReadRelease();                // read lock release
+  void WriteAcquire();               // write lock acquire
+  void WriteRelease();               // write lock release
+
+ private:
+  char* name;
+  int readNum;  // readnum
+  Lock* mutex;  // mutex lock
+  Lock* rlock;  // read lock
+  Lock* wlock;  // write lock
+};
+
 #endif  // SYNCH_H
