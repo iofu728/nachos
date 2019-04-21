@@ -44,45 +44,43 @@ int totalUpNum = 0, totalDownNum = 0;
 sem_t *sl[LOCKNUM], *mutex, *upBegin, *downBegin, *hungerUpper, *hungerDown;
 pthread_t tidList[THREADNUM];
 
-void *Up(void *b) {
-  sem_wait(upBegin);            // Begin lock
-  if (!upNum) sem_wait(mutex);  // one direct
+void *Up() {
+  sem_wait(upBegin);            // 抢占大坝外队首
+  if (!upNum) sem_wait(mutex);  // 进入大坝临界区
   while (downNum || different > HUNGERNUM) {
-    sem_post(mutex);  // yield
-    sem_wait(mutex);
+    sem_post(mutex);  // 如果对面有来船，或者进入饥饿条件
+    sem_wait(mutex);  // 则主动让出大坝临界区
   }
-  ++totalUpNum;  // count num
-  ++upNum;
+  ++totalUpNum, ++upNum;  // 计数
 
   for (int i = 0; i < LOCKNUM; ++i) {
-    sem_wait(sl[i]);
+    sem_wait(sl[i]);  // 依次获取第i级船闸临界区
     // do some work //
-    sem_post(sl[i]);
-    if (!i) sem_post(upBegin);  // release Begin Lock
+    sem_post(sl[i]);            // 释放第i级船闸临界区
+    if (!i) sem_post(upBegin);  // 释放未进入船舶队首临界区
   }
   --upNum;
-  if (!upNum) sem_post(mutex);  // release Direct Lock
+  if (!upNum) sem_post(mutex);  // 释放大坝临界区
   return NULL;
 }
 
 void *Down(void *a) {
-  sem_wait(downBegin);            // Begin lock
-  if (!downNum) sem_wait(mutex);  // one direct
+  sem_wait(downBegin);            // 抢占大坝外队首
+  if (!downNum) sem_wait(mutex);  // 进入大坝临界区
   while (upNum || different > HUNGERNUM) {
-    sem_post(mutex);  // yield
-    sem_wait(mutex);
+    sem_post(mutex);  // 如果对面有来船，或者进入饥饿条件
+    sem_wait(mutex);  // 则主动让出大坝临界区
   }
-  ++totalDownNum;  // count num
-  ++downNum;
+  ++totalDownNum, ++downNum;  // 计数
 
   for (int i = LOCKNUM - 1; i >= 0; --i) {
-    sem_wait(sl[i]);
+    sem_wait(sl[i]);  // 依次获取第i级船闸临界区
     // do some work //
-    sem_post(sl[i]);
-    if (i == LOCKNUM - 1) sem_post(downBegin);  // release Begin
+    sem_post(sl[i]);                            // 释放第i级船闸临界区
+    if (i == LOCKNUM - 1) sem_post(downBegin);  // 释放未进入船舶队首临界区
   }
   --downNum;
-  if (!downNum) sem_post(mutex);  // release Direct Lock
+  if (!downNum) sem_post(mutex);  // 释放大坝临界区
   return NULL;
 }
 ```
@@ -94,7 +92,7 @@ void *Down(void *a) {
  * @Author: gunjianpan
  * @Date:   2019-04-21 16:36:14
  * @Last Modified by:   gunjianpan
- * @Last Modified time: 2019-04-22 00:13:20
+ * @Last Modified time: 2019-04-22 00:41:15
  */
 #include <pthread.h>
 #include <semaphore.h>
