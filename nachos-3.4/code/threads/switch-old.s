@@ -1,5 +1,5 @@
-/* switch.s
- *   	Machine dependent context switch routines.  DO NOT MODIFY THESE!
+/* switch.s 
+ *   	Machine dependent context switch routines.  DO NOT MODIFY THESE! 
  *
  *	Context switching is inherently machine dependent, since
  *	the registers to be saved, how to set up an initial
@@ -21,7 +21,7 @@
  *	StartupPC  - Routine to call when the thread is started.
  *
  *	ThreadRoot is called from the SWITCH() routine to start
- *	a thread for the first time.
+ *	a thread for the first time. 
  *
  * SWITCH(oldThread, newThread)
  * 	oldThread  - The current thread that was running, where the
@@ -32,7 +32,7 @@
 
 /*
  Copyright (c) 1992-1993 The Regents of the University of California.
- All rights reserved.  See copyright.h for copyright notice and limitation
+ All rights reserved.  See copyright.h for copyright notice and limitation 
  of liability and disclaimer of warranty provisions.
  */
 
