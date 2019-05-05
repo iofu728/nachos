@@ -91,7 +91,7 @@ bool Machine::ReadMem(int addr, int size, int *value)
 	ExceptionType exception;
 	int physicalAddress;
 
-	DEBUG('a', "Reading VA 0x%x, size %d\n", addr, size);
+	DEBUG('a', "\033[93mReading VA 0x%x, size %d\n\033[0m", addr, size);
 
 	exception = Translate(addr, &physicalAddress, size, FALSE);
 	if (exception != NoException)
@@ -142,7 +142,7 @@ bool Machine::WriteMem(int addr, int size, int value)
 	ExceptionType exception;
 	int physicalAddress;
 
-	DEBUG('a', "Writing VA 0x%x, size %d, value 0x%x\n", addr, size, value);
+	DEBUG('a', "\033[91mWriting VA 0x%x, size %d, value 0x%x\n\033[0m", addr, size, value);
 
 	exception = Translate(addr, &physicalAddress, size, TRUE);
 	if (exception != NoException)

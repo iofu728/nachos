@@ -49,6 +49,49 @@
 //	are in machine.h.
 //----------------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// Lab4 in 19.5.5
+//----------------------------------------------------------------------
+
+// PageTable Fault Hander
+void PageTableFaultHandler(ExceptionType which)
+{
+  ASSERT(FALSE);
+}
+
+// TLB Miss Fault Handler + PageTable Fault Handler
+void PageFaultHandler(ExceptionType which)
+{
+  unsigned int vpn, offset;
+  int virtAddr, emptyTLBIndex;
+
+  virtAddr = machine->ReadRegister(BadVAddrReg);
+  vpn = (unsigned)virtAddr / PageSize;
+  offset = (unsigned)virtAddr % PageSize;
+  DEBUG('a', "\033[93mVPN: %d Offset:%d\033[0m\n", vpn, offset);
+
+  if (machine->tlb == NULL)
+  {
+    PageTableFaultHandler(which);
+  }
+  else
+  {
+    while (emptyTLBIndex < TLBSize && machine->tlb[emptyTLBIndex].valid)
+      ++emptyTLBIndex;
+
+    if (emptyTLBIndex == TLBSize)
+      emptyTLBIndex = 0;
+
+    if (machine->pageTable[vpn].valid)
+      machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
+    else
+    {
+      PageTableFaultHandler(which);
+    }
+  }
+}
+
+// Exception Handler entry function
 void ExceptionHandler(ExceptionType which)
 {
   int type = machine->ReadRegister(2);
@@ -66,41 +109,4 @@ void ExceptionHandler(ExceptionType which)
     printf("Unexpected user mode exception %d %d\n", which, type);
     ASSERT(FALSE);
   }
-}
-
-// TLB Miss Fault Handler + PageTable Fault Handler
-void PageFaultHandler(ExceptionType which)
-{
-  unsigned int vpn, offset;
-  int virtAddr, emptyTLBIndex;
-
-  virtAddr = machine->ReadRegister(BadVAddrReg);
-  int vpn = (unsigned)virtAddr / PageSize;
-  int offset = (unsigned)virtAddr % PageSize;
-
-  if (machine->tlb == NULL)
-  {
-    PageTableFaultHandler(which);
-  }
-  else
-  {
-    while (emptyTLBIndex < TLBSize && machine->tlb[emptyTLBIndex])
-      ++emptyTLBIndex;
-
-    if (emptyTLBIndex == TLBSize)
-      emptyTLBIndex = 0;
-
-    if (machine->pageTable[vpn].valid)
-      machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
-    else
-    {
-      PageTableFaultHandler(which);
-    }
-  }
-}
-
-// PageTable Fault Hander
-void PageTableFaultHandler(ExceptionType which)
-{
-  ASSERT(FALSE);
 }
