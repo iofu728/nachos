@@ -97,7 +97,7 @@ void echo(int color, char *format, ...)
 
     va_list ap;
     // You will get an unused variable message here -- ignore it.
-    va_start(ap, format_next);
+    va_start(ap, format);
     vfprintf(stdout, format_next, ap);
     va_end(ap);
     fflush(stdout);

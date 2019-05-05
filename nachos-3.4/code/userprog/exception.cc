@@ -69,7 +69,7 @@ void PageFaultHandler()
   virtAddr = machine->ReadRegister(BadVAddrReg);
   vpn = (unsigned)virtAddr / PageSize;
   offset = (unsigned)virtAddr % PageSize;
-  DEBUG('a', "\033[93mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
+  DEBUG('a', "\033[94mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
 
   if (machine->tlb == NULL)
   {
