@@ -56,6 +56,7 @@
 // PageTable Fault Hander
 void PageTableFaultHandler()
 {
+  DEBUG('a', "\033[91mPage Table Fault \033[0m\n", vpn, offset);
   ASSERT(FALSE);
 }
 
@@ -68,7 +69,7 @@ void PageFaultHandler()
   virtAddr = machine->ReadRegister(BadVAddrReg);
   vpn = (unsigned)virtAddr / PageSize;
   offset = (unsigned)virtAddr % PageSize;
-  DEBUG('a', "\033[93mVPN: %d Offset:%d\033[0m\n", vpn, offset);
+  DEBUG('a', "\033[93mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
 
   if (machine->tlb == NULL)
   {
@@ -83,7 +84,9 @@ void PageFaultHandler()
       emptyTLBIndex = 0;
 
     if (machine->pageTable[vpn].valid)
+    {
       machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
+    }
     else
     {
       PageTableFaultHandler();
