@@ -70,3 +70,35 @@ void DEBUG(char flag, char *format, ...)
         fflush(stdout);
     }
 }
+
+void echo(int color, char *format, ...)
+{
+    char *format_next;
+    switch (color)
+    {
+    case 0:
+        strcat(format_next, "\033[93m");
+        break;
+    case 1:
+        strcat(format_next, "\033[91m");
+        break;
+    case 2:
+        strcat(format_next, "\033[01;34m");
+        break;
+    case 3:
+        strcat(format_next, "\033[1;92m");
+        break;
+    default:
+        strcat(format_next, "\033[93m");
+        break;
+    }
+    strcat(format_next, format);
+    strcat(format_next, "\033[0m");
+
+    va_list ap;
+    // You will get an unused variable message here -- ignore it.
+    va_start(ap, format_next);
+    vfprintf(stdout, format_next, ap);
+    va_end(ap);
+    fflush(stdout);
+}

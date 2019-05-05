@@ -64,6 +64,7 @@ extern bool DebugIsEnabled(char flag); // Is this debug flag enabled?
 extern void DEBUG(char flag, char *format, ...); // Print debug message
                                                  // if flag is enabled
 
+extern void echo(int color, char *format, ...); // Print color message
 //----------------------------------------------------------------------
 // ASSERT
 //      If condition is false,  print a message and dump core.
