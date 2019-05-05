@@ -69,7 +69,7 @@ void PageFaultHandler()
   virtAddr = machine->ReadRegister(BadVAddrReg);
   vpn = (unsigned)virtAddr / PageSize;
   offset = (unsigned)virtAddr % PageSize;
-  DEBUG('a', "\033[94mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
+  DEBUG('a', "\033[92mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
 
   if (machine->tlb == NULL)
   {
@@ -77,8 +77,6 @@ void PageFaultHandler()
   }
   else
   {
-    echo(3, "TLBSize:%d \n", emptyTLBIndex);
-
     while (emptyTLBIndex < TLBSize && machine->tlb[emptyTLBIndex].valid)
       ++emptyTLBIndex;
 
@@ -87,7 +85,7 @@ void PageFaultHandler()
 
     if (machine->pageTable[vpn].valid)
     {
-      DEBUG('a', "\033[93m TLB Index:%d \033[0m\n", emptyTLBIndex);
+      DEBUG('a', "\033[92m TLB Index:%d \033[0m\n", emptyTLBIndex);
       machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
     }
     else

@@ -22,7 +22,7 @@
 
 void StartProcess(char *filename)
 {
-    echo(2, " Write by Jiang Huiqiang 1801210840 in 2019-05-05 ");
+    printf("\033[01;34m Write by Jiang Huiqiang 1801210840 in 2019-05-05 \033[0m\n");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
 
