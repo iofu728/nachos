@@ -54,13 +54,13 @@
 //----------------------------------------------------------------------
 
 // PageTable Fault Hander
-void PageTableFaultHandler(ExceptionType which)
+void PageTableFaultHandler()
 {
   ASSERT(FALSE);
 }
 
 // TLB Miss Fault Handler + PageTable Fault Handler
-void PageFaultHandler(ExceptionType which)
+void PageFaultHandler()
 {
   unsigned int vpn, offset;
   int virtAddr, emptyTLBIndex;
@@ -72,7 +72,7 @@ void PageFaultHandler(ExceptionType which)
 
   if (machine->tlb == NULL)
   {
-    PageTableFaultHandler(which);
+    PageTableFaultHandler();
   }
   else
   {
@@ -86,7 +86,7 @@ void PageFaultHandler(ExceptionType which)
       machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
     else
     {
-      PageTableFaultHandler(which);
+      PageTableFaultHandler();
     }
   }
 }
@@ -97,7 +97,7 @@ void ExceptionHandler(ExceptionType which)
   int type = machine->ReadRegister(2);
   if (which == PageFaultException)
   {
-    PageFaultHandler(which);
+    PageFaultHandler();
   }
   else if ((which == SyscallException) && (type == SC_Halt))
   {
