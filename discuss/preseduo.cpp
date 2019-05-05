@@ -1,9 +1,3 @@
-/*
- * @Author: gunjianpan
- * @Date:   2019-04-21 16:36:14
- * @Last Modified by:   gunjianpan
- * @Last Modified time: 2019-04-22 00:38:00
- */
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdio.h>
@@ -17,42 +11,47 @@ sem_t *sl[LOCKNUM], *mutex, *upBegin, *downBegin, *hungerUpper, *hungerDown;
 pthread_t tidList[THREADNUM];
 
 void *Up() {
-  sem_wait(upBegin);            // 抢占大坝外队首
+  sem_wait(upBegin);            // 抢占计数器
   if (!upNum) sem_wait(mutex);  // 进入大坝临界区
   while (downNum || different > HUNGERNUM) {
     sem_post(mutex);  // 如果对面有来船，或者进入饥饿条件
     sem_wait(mutex);  // 则主动让出大坝临界区
   }
   ++totalUpNum, ++upNum;  // 计数
+  sem_post(upBegin);      // 释放计数器
 
   for (int i = 0; i < LOCKNUM; ++i) {
     sem_wait(sl[i]);  // 依次获取第i级船闸临界区
     // do some work //
     sem_post(sl[i]);            // 释放第i级船闸临界区
-    if (!i) sem_post(upBegin);  // 释放未进入船舶队首临界区
+     
   }
+  sem_wait(upBegin);            // 抢占计数器 
   --upNum;
   if (!upNum) sem_post(mutex);  // 释放大坝临界区
+  sem_post(upBegin);            // 释放计数器 
   return NULL;
 }
 
 void *Down(void *a) {
-  sem_wait(downBegin);            // 抢占大坝外队首
+  sem_wait(downBegin);            // 抢占计数器
   if (!downNum) sem_wait(mutex);  // 进入大坝临界区
   while (upNum || different > HUNGERNUM) {
     sem_post(mutex);  // 如果对面有来船，或者进入饥饿条件
     sem_wait(mutex);  // 则主动让出大坝临界区
   }
   ++totalDownNum, ++downNum;  // 计数
+  sem_post(downBegin);       // 释放计数器
 
   for (int i = LOCKNUM - 1; i >= 0; --i) {
     sem_wait(sl[i]);  // 依次获取第i级船闸临界区
     // do some work //
-    sem_post(sl[i]);                            // 释放第i级船闸临界区
-    if (i == LOCKNUM - 1) sem_post(downBegin);  // 释放未进入船舶队首临界区
+    sem_post(sl[i]);              // 释放第i级船闸临界区
   }
+  sem_wait(downBegin);            // 抢占计数器
   --downNum;
   if (!downNum) sem_post(mutex);  // 释放大坝临界区
+  sem_post(downBegin);            // 释放计数器
   return NULL;
 }
 
