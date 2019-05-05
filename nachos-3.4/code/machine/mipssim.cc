@@ -42,6 +42,7 @@ void Machine::Run()
 		if (singleStep && (runUntilTime <= stats->totalTicks))
 			Debugger();
 	}
+	
 }
 
 //----------------------------------------------------------------------

@@ -38,6 +38,9 @@
 // simulated machine's format of little endian.  These end up
 // being NOPs when the host machine is also little endian (DEC and Intel).
 
+int totalRun = 0;
+int TLBMiss = 0;
+
 unsigned int
 WordToHost(unsigned int word)
 {
@@ -94,11 +97,13 @@ bool Machine::ReadMem(int addr, int size, int *value)
 	DEBUG('a', "\033[93mReading VA 0x%x, size %d\n\033[0m", addr, size);
 
 	exception = Translate(addr, &physicalAddress, size, FALSE);
+	
 	if (exception != NoException)
 	{
 		machine->RaiseException(exception, addr);
 		return FALSE;
 	}
+	++totalRun;
 	switch (size)
 	{
 	case 1:
@@ -234,6 +239,11 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
 			if (tlb[i].valid && (tlb[i].virtualPage == vpn))
 			{
 				entry = &tlb[i]; // FOUND!
+				int lruNum= LRUTLB[i];
+				for(int j = 0;j < TLBSize;++j){
+					if (LRUTLB[j] <lruNum && LRUTLB[j] < TLBSize) ++LRUTLB[j];
+					if(i==j) LRUTLB[j] =1;
+				}
 				break;
 			}
 		if (entry == NULL)

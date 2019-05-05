@@ -65,6 +65,7 @@ Machine::Machine(bool debug)
     for (i = 0; i < TLBSize; i++)
         tlb[i].valid = FALSE;
     pageTable = NULL;
+    LRUTLB[TLBSize]= {};
 #else // use linear page table
     tlb = NULL;
     pageTable = NULL;

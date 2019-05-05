@@ -181,6 +181,7 @@ public:
 												 // "read-only" to Nachos kernel code
 
 	TranslationEntry *pageTable;
+	int LRUTLB[TLBSize];
 	unsigned int pageTableSize;
 
 private:
@@ -211,4 +212,6 @@ unsigned short ShortToHost(unsigned short shortword);
 unsigned int WordToMachine(unsigned int word);
 unsigned short ShortToMachine(unsigned short shortword);
 
+extern int totalRun;
+extern int TLBMiss;
 #endif // MACHINE_H

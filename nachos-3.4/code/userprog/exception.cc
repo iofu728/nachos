@@ -53,6 +53,8 @@
 // Lab4 in 19.5.5
 //----------------------------------------------------------------------
 
+int time = 0,replace = 1;
+int tlbTime[TLBSize] = {0, 0,0,0};
 // PageTable Fault Hander
 void PageTableFaultHandler()
 {
@@ -61,8 +63,8 @@ void PageTableFaultHandler()
 }
 
 // TLB Miss Fault Handler + PageTable Fault Handler
-void PageFaultHandler()
-{
+// PageTable Fault Hander
+void PageFaultHandler() {
   unsigned int vpn, offset;
   int virtAddr, emptyTLBIndex = 0;
 
@@ -71,45 +73,61 @@ void PageFaultHandler()
   offset = (unsigned)virtAddr % PageSize;
   DEBUG('a', "\033[92mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
 
-  if (machine->tlb == NULL)
-  {
+  if (machine->tlb == NULL) {
     PageTableFaultHandler();
-  }
-  else
-  {
+  } else {
     while (emptyTLBIndex < TLBSize && machine->tlb[emptyTLBIndex].valid)
       ++emptyTLBIndex;
 
-    if (emptyTLBIndex == TLBSize)
-      emptyTLBIndex = 0;
-
-    if (machine->pageTable[vpn].valid)
-    {
-      DEBUG('a', "\033[92m TLB Index:%d \033[0m\n", emptyTLBIndex);
-      machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
+    if (emptyTLBIndex == TLBSize) {
+      if (!replace) {
+        int minTime = 0x3fffffff;
+        for (int i = 0; i < TLBSize; ++i) {
+          printf("%d", tlbTime[i]);
+          if (tlbTime[i] < minTime) {
+            minTime = tlbTime[i];
+            emptyTLBIndex = i;
+          }
+        }
+      } else {
+        int maxTime = -1;
+        for (int i = 0; i < TLBSize; ++i)
+          if (machine->LRUTLB[i] > maxTime) {
+            maxTime = machine->LRUTLB[i];
+            emptyTLBIndex = i;
+          }
+        int lruNUm = machine->LRUTLB[emptyTLBIndex];
+        for (int i = 0; i < TLBSize; ++i) {
+          if (machine->LRUTLB[i] <= lruNUm && machine->LRUTLB[i] < TLBSize) ++machine->LRUTLB[i];
+          if (emptyTLBIndex == i) machine->LRUTLB[i] = 1;
+          printf("%d", machine->LRUTLB[i]);
+        }
+      }
     }
-    else
-    {
+
+    if (machine->pageTable[vpn].valid) {
+      printf("\033[92m TLB Index:%d \033[0m\n", emptyTLBIndex);
+      machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
+      ++tlbTime[emptyTLBIndex];
+      ++TLBMiss;
+      ++time;
+    } else {
       PageTableFaultHandler();
     }
   }
 }
 
 // Exception Handler entry function
-void ExceptionHandler(ExceptionType which)
-{
+void ExceptionHandler(ExceptionType which) {
   int type = machine->ReadRegister(2);
-  if (which == PageFaultException)
-  {
+  if (which == PageFaultException) {
     PageFaultHandler();
-  }
-  else if ((which == SyscallException) && (type == SC_Halt))
-  {
+  } else if ((which == SyscallException) && (type == SC_Halt)) {
     DEBUG('a', "Shutdown, initiated by user program.\n");
+    printf("TLB MIss Time: %d, Ratio TLB Miss:%.2f%\n", TLBMiss,
+           TLBMiss * 100.0 / totalRun);
     interrupt->Halt();
-  }
-  else
-  {
+  } else {
     printf("Unexpected user mode exception %d %d\n", which, type);
     ASSERT(FALSE);
   }
