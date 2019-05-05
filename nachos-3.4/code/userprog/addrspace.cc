@@ -75,6 +75,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; // space size
     numPages = divRoundUp(size, PageSize);                                                // up to integer, sufficient space
     size = numPages * PageSize;
+    DEBUG('a', "\033[93mPage num:%d \033[0m\n", numPages);
 
     ASSERT(numPages <= NumPhysPages); // check we're not trying
                                       // to run anything too big --
