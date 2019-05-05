@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "machine.h"
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -50,16 +51,56 @@
 
 void ExceptionHandler(ExceptionType which)
 {
-    int type = machine->ReadRegister(2);
+  int type = machine->ReadRegister(2);
+  if (which == PageFaultException)
+  {
+    PageFaultHandler(which);
+  }
+  else if ((which == SyscallException) && (type == SC_Halt))
+  {
+    DEBUG('a', "Shutdown, initiated by user program.\n");
+    interrupt->Halt();
+  }
+  else
+  {
+    printf("Unexpected user mode exception %d %d\n", which, type);
+    ASSERT(FALSE);
+  }
+}
 
-    if ((which == SyscallException) && (type == SC_Halt))
-    {
-        DEBUG('a', "Shutdown, initiated by user program.\n");
-        interrupt->Halt();
-    }
+// TLB Miss Fault Handler + PageTable Fault Handler
+void PageFaultHandler(ExceptionType which)
+{
+  unsigned int vpn, offset;
+  int virtAddr, emptyTLBIndex;
+
+  virtAddr = machine->ReadRegister(BadVAddrReg);
+  int vpn = (unsigned)virtAddr / PageSize;
+  int offset = (unsigned)virtAddr % PageSize;
+
+  if (machine->tlb == NULL)
+  {
+    PageTableFaultHandler(which);
+  }
+  else
+  {
+    while (emptyTLBIndex < TLBSize && machine->tlb[emptyTLBIndex])
+      ++emptyTLBIndex;
+
+    if (emptyTLBIndex == TLBSize)
+      emptyTLBIndex = 0;
+
+    if (machine->pageTable[vpn].valid)
+      machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
     else
     {
-        printf("Unexpected user mode exception %d %d\n", which, type);
-        ASSERT(FALSE);
+      PageTableFaultHandler(which);
     }
+  }
+}
+
+// PageTable Fault Hander
+void PageTableFaultHandler(ExceptionType which)
+{
+  ASSERT(FALSE);
 }
