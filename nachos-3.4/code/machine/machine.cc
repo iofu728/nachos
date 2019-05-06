@@ -221,8 +221,10 @@ void Machine::WriteRegister(int num, int value)
 
 int Machine::AllocationMemory()
 {
-    int allocationId = (bitMap & (~(bitMap - 1)));
-    bitMap = bitMap ^ (1 << allocationId);
+    int allocationPower = (bitMap & (~(bitMap - 1))), allocationId = 0;
+    while (allocationPower >> allocationId != 1)
+        ++allocationId;
+    bitMap = bitMap ^ allocationPower;
     return allocationId;
 }
 
