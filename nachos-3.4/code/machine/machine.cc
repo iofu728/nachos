@@ -222,9 +222,11 @@ void Machine::WriteRegister(int num, int value)
 int Machine::AllocationMemory()
 {
     int allocationPower = (bitMap & (~(bitMap - 1))), allocationId = 0;
+    ASSERT(allocationPower);
     while (allocationPower >> allocationId != 1)
         ++allocationId;
     bitMap = bitMap ^ allocationPower;
+    DEBUG('a', "\033[92mNow BitMap is 08x%x Allocation BitMap Id is %d \n\033[0m", bitMap, allocationId);
     return allocationId;
 }
 
@@ -236,7 +238,7 @@ int Machine::AllocationMemory()
 void Machine::DeallocationMemory(int index)
 {
     bitMap = bitMap ^ (1 << index);
-    DEBUG('a', "Now BitMap is %d", bitMap);
+    DEBUG('a', "\033[92mNow BitMap is 08x%x \n\033[0m", bitMap);
 }
 
 //----------------------------------------------------------------------
@@ -247,5 +249,5 @@ void Machine::DeallocationMemory(int index)
 void Machine::ClearMemory()
 {
     bitMap = -1;
-    DEBUG('a', "\033[92mNow BitMap is %d \n\033[0m", bitMap);
+    DEBUG('a', "\033[92mNow BitMap is 08x%x \n\033[0m", bitMap);
 }

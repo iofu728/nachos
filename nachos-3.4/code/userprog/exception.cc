@@ -150,7 +150,7 @@ void ExceptionHandler(ExceptionType which)
     machine->ClearMemory();
     int nextPC = machine->ReadRegister(NextPCReg);
     machine->WriteRegister(PCReg, nextPC);
-    // interrupt->Halt();
+    interrupt->Halt();
   }
   else
   {
