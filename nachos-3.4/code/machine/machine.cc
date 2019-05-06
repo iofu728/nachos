@@ -60,12 +60,13 @@ Machine::Machine(bool debug)
     mainMemory = new char[MemorySize];
     for (i = 0; i < MemorySize; i++)
         mainMemory[i] = 0;
+    bitMap = -1;
 #ifdef USE_TLB
     tlb = new TranslationEntry[TLBSize];
     for (i = 0; i < TLBSize; i++)
         tlb[i].valid = FALSE;
     pageTable = NULL;
-    LRUTLB[TLBSize]= {};
+    LRUTLB[TLBSize] = {};
 #else // use linear page table
     tlb = NULL;
     pageTable = NULL;
@@ -211,4 +212,33 @@ void Machine::WriteRegister(int num, int value)
     ASSERT((num >= 0) && (num < NumTotalRegs));
     // DEBUG('m', "WriteRegister %d, value %d\n", num, value);
     registers[num] = value;
+}
+
+//----------------------------------------------------------------------
+// Machine::AllocationMemory
+//   	get bit map position Lab4 exercise 4
+//----------------------------------------------------------------------
+
+int Machine::AllocationMemory() { return (bitMap & (~(bitMap - 1))); }
+
+//----------------------------------------------------------------------
+// Machine::DeallocationMemory
+//   	get bit map position Lab 4 exercise 4
+//----------------------------------------------------------------------
+
+void Machine::DeallocationMemory(int index)
+{
+    bitMap = bitMap ^ (1 << index);
+    DEBUG('a', "Now BitMap is %d", bitMap);
+}
+
+//----------------------------------------------------------------------
+// Machine::AllocationMemory
+//   	get bit map position Lab 4 exercise 4
+//----------------------------------------------------------------------
+
+void Machine::ClearMemory()
+{
+    bitMap = -1;
+    DEBUG('a', "Now BitMap is %d", bitMap);
 }

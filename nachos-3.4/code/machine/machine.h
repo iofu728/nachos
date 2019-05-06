@@ -28,9 +28,9 @@
 
 // Definitions related to the size, and format of user memory
 
-#define PageSize SectorSize // set the page size equal to
-														// the disk sector size, for
-														// simplicity
+#define PageSize SectorSize // set the page size equal to \
+							// the disk sector size, for  \
+							// simplicity
 
 #define NumPhysPages 32
 #define MemorySize (NumPhysPages * PageSize)
@@ -38,17 +38,17 @@
 
 enum ExceptionType
 {
-	NoException,				// Everything ok!
-	SyscallException,		// A program executed a system call.
+	NoException,		// Everything ok!
+	SyscallException,   // A program executed a system call.
 	PageFaultException, // No valid translation found
-	ReadOnlyException,	// Write attempted to page marked
+	ReadOnlyException,  // Write attempted to page marked
 	// "read-only"
 	BusErrorException, // Translation resulted in an
 	// invalid physical address
 	AddressErrorException, // Unaligned reference or one that
 	// was beyond the end of the
 	// address space
-	OverflowException,		 // Integer overflow in add or sub.
+	OverflowException,	 // Integer overflow in add or sub.
 	IllegalInstrException, // Unimplemented or reserved instr.
 
 	NumExceptionTypes
@@ -59,17 +59,17 @@ enum ExceptionType
 // any two instructions (thus we need to keep track of things like load
 // delay slots, etc.)
 
-#define StackReg 29		// User's stack pointer
+#define StackReg 29   // User's stack pointer
 #define RetAddrReg 31 // Holds return address for procedure calls
-#define NumGPRegs 32	// 32 general purpose registers on MIPS
-#define HiReg 32			// Double register to hold multiply result
+#define NumGPRegs 32  // 32 general purpose registers on MIPS
+#define HiReg 32	  // Double register to hold multiply result
 #define LoReg 33
-#define PCReg 34				// Current program counter
-#define NextPCReg 35		// Next program counter (for branch delay)
-#define PrevPCReg 36		// Previous program counter (for debugging)
-#define LoadReg 37			// The register target of a delayed load.
+#define PCReg 34		// Current program counter
+#define NextPCReg 35	// Next program counter (for branch delay)
+#define PrevPCReg 36	// Previous program counter (for debugging)
+#define LoadReg 37		// The register target of a delayed load.
 #define LoadValueReg 38 // The value to be loaded by a delayed load.
-#define BadVAddrReg 39	// The failing virtual address on an exception
+#define BadVAddrReg 39  // The failing virtual address on an exception
 
 #define NumTotalRegs 40
 
@@ -87,11 +87,11 @@ public:
 
 	unsigned int value; // binary representation of the instruction
 
-	char opCode;		 // Type of instruction.  This is NOT the same as the
-									 // opcode field from the instruction: see defs in mips.h
+	char opCode;	 // Type of instruction.  This is NOT the same as the
+					 // opcode field from the instruction: see defs in mips.h
 	char rs, rt, rd; // Three registers from instruction.
-	int extra;			 // Immediate or target or shamt field or offset.
-									 // Immediates are sign-extended.
+	int extra;		 // Immediate or target or shamt field or offset.
+					 // Immediates are sign-extended.
 };
 
 // The following class defines the simulated host workstation hardware, as
@@ -111,8 +111,8 @@ class Machine
 {
 public:
 	Machine(bool debug); // Initialize the simulation of the hardware
-			// for running user programs
-	~Machine(); // De-allocate the data structures
+						 // for running user programs
+	~Machine();			 // De-allocate the data structures
 
 	// Routines callable by the Nachos kernel
 	void Run(); // Run a user program
@@ -146,7 +146,7 @@ public:
 	// Trap to the Nachos kernel, because of a
 	// system call or other exception.
 
-	void Debugger();	// invoke the user program debugger
+	void Debugger();  // invoke the user program debugger
 	void DumpState(); // print the user CPU and memory state
 
 	// Data structures -- all of these are accessible to Nachos kernel code.
@@ -155,8 +155,8 @@ public:
 	// Note that *all* communication between the user program and the kernel
 	// are in terms of these data structures.
 
-	char *mainMemory; // physical memory to store user program,
-			// code and data, while executing
+	char *mainMemory;			 // physical memory to store user program,
+								 // code and data, while executing
 	int registers[NumTotalRegs]; // CPU registers, for executing user programs
 
 	// NOTE: the hardware translation of virtual addresses in the user program
@@ -178,17 +178,21 @@ public:
 	// the contents of the TLB are free to be modified by the kernel software.
 
 	TranslationEntry *tlb; // this pointer should be considered
-												 // "read-only" to Nachos kernel code
+						   // "read-only" to Nachos kernel code
 
 	TranslationEntry *pageTable;
-	int LRUTLB[TLBSize];
+	int LRUTLB[TLBSize]; // LRU TLB store
 	unsigned int pageTableSize;
+	unsigned int bitMap;				// bit map 1 -> empty; 0 -> using
+	int AllocationMemory();				// allocation memory from bit map
+	void DeallocationMemory(int index); // deallocation memory to bit map
+	void ClearMemory();					// clear memory of bit map
 
 private:
-	bool singleStep; // drop back into the debugger after each
-			// simulated instruction
+	bool singleStep;  // drop back into the debugger after each
+					  // simulated instruction
 	int runUntilTime; // drop back into the debugger when simulated
-										// time reaches this value
+					  // time reaches this value
 };
 
 extern void ExceptionHandler(ExceptionType which);
