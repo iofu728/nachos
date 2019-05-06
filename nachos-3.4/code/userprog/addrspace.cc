@@ -90,7 +90,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     {
         pageTable[i].virtualPage = i; // for now, virtual page # = phys page #
         int allocationId = machine->AllocationMemory();
-        DEBUG('a', "Allocation BitMap Id is %d", allocationId);
+        DEBUG('a', "\033[93mAllocation BitMap Id is %d\n\033[0m", allocationId);
         ASSERT(allocationId)
         pageTable[i].physicalPage = allocationId;
         pageTable[i].valid = TRUE;

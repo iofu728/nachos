@@ -219,7 +219,12 @@ void Machine::WriteRegister(int num, int value)
 //   	get bit map position Lab4 exercise 4
 //----------------------------------------------------------------------
 
-int Machine::AllocationMemory() { return (bitMap & (~(bitMap - 1))); }
+int Machine::AllocationMemory()
+{
+    int allocationId = (bitMap & (~(bitMap - 1)));
+    bitMap = bitMap ^ (1 << allocationId);
+    return allocationId;
+}
 
 //----------------------------------------------------------------------
 // Machine::DeallocationMemory
@@ -240,5 +245,5 @@ void Machine::DeallocationMemory(int index)
 void Machine::ClearMemory()
 {
     bitMap = -1;
-    DEBUG('a', "Now BitMap is %d", bitMap);
+    DEBUG('a', "\033[92mNow BitMap is %d \n\033[0m", bitMap);
 }
