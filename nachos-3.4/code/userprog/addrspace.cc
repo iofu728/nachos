@@ -88,9 +88,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++)
     {
-        pageTable[i].virtualPage = i; // for now, virtual page # = phys page #
-        int allocationId = machine->AllocationMemory();
-        pageTable[i].physicalPage = allocationId;
+        pageTable[i].virtualPage = i; // for now, virtual page # = phys page #s
+        pageTable[i].physicalPage = machine->AllocationMemory();
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;

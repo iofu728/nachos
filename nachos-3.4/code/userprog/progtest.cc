@@ -45,6 +45,56 @@ void StartProcess(char *filename)
                     // by doing the syscall "exit"
 }
 
+//----------------------------------------------------------------------
+// Multi memory lab 4 exercise 5
+//----------------------------------------------------------------------
+
+void ForkThread(int num){
+    printf("Start %d Thread", num);
+    machine->Run();
+}
+
+void StartMultiProcess(char *filename, int threadNum){
+    printf("\033[01;34m Write by Jiang Huiqiang 1801210840 in 2019-05-05 \033[0m\n");
+    if (!threadNum) {
+        printf("\033[91m ThreadNum should be a num \033[0m\n");
+        return;
+    }
+    OpenFile *executable[threadNum] = {};
+    AddrSpace *space[threadNum];
+    Thread *thread[threadNum - 1] = {};
+    for (int i = 0; i < threadNum; ++i) executable[i] = fileSystem->Open(filename);
+    for (int i = 1; i < threadNum; ++i) thread[i] = new Thread("Thread");
+
+    if (executable[0] == NULL){
+        printf("Unable to open file %s\n", filename);
+        return;
+    }
+    for (int i = 0; i < threadNum; ++i) {
+        printf("\033[93m No.%d Thread init address space \033[0m\n", i);
+        space[i] = new AddrSpace(executable[i]);
+    }
+
+    currentThread->space = space[0];
+    for (int i = threadNum - 1; i = 0; --i){
+        space[i]->InitRegisters();
+        space[i]->RestoreState();
+        thread[i-1]->space = space[i];
+        thread[i-1]->Fork(ForkThread, (void *)i);
+        currentThread->Yield();
+    }
+    for (int i = 0; i < threadNum; ++i){
+        delete executable[i];
+    }
+    space[0]->InitRegisters();
+    space[0]->RestoreState();
+
+    machine->Run(); // jump to the user progam
+    ASSERT(FALSE);  // machine->Run never returns;
+                    // the address space exits
+                    // by doing the syscall "exit"
+}
+
 // Data structures needed for the console test.  Threads making
 // I/O requests wait on a Semaphore to delay until the I/O completes.
 
