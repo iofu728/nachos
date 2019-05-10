@@ -90,7 +90,7 @@ void PageFaultHandler()
         int minTime = 0x3fffffff;
         for (int i = 0; i < TLBSize; ++i)
         {
-          printf("%d", tlbTime[i]);
+          DEBUG('a', "\033[92m TLBTime: %d \033[0m\n", tlbTime[i]);
           if (tlbTime[i] < minTime)
           {
             minTime = tlbTime[i];
@@ -114,7 +114,7 @@ void PageFaultHandler()
             ++machine->LRUTLB[i];
           if (emptyTLBIndex == i)
             machine->LRUTLB[i] = 1;
-          printf("%d", machine->LRUTLB[i]);
+          DEBUG('a', "\033[92m LRUTLB: %d \n", machine->LRUTLB[i]);
         }
       }
     }
