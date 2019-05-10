@@ -90,7 +90,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     {
         pageTable[i].virtualPage = i; // for now, virtual page # = phys page #s
         pageTable[i].physicalPage = machine->AllocationMemory();
-        pageTable[i].valid = TRUE;
+        pageTable[i].valid = FALSE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE; // if the code segment was entirely on
@@ -112,7 +112,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
               noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr);
         char char_stream[numPages * PageSize];
         executable->ReadAt((char_stream), noffH.code.size, noffH.code.inFileAddr);
-        openfile->WriteAt((char_stream), noffH.code.size, noffH.code.virtualAddr * PageSize);
+        openfile->WriteAt((char_stream), noffH.code.size, noffH.code.virtualAddr);
         // executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
         //                    noffH.code.size, noffH.code.inFileAddr);
     }
