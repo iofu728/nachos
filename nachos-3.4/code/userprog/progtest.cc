@@ -49,22 +49,20 @@ void StartProcess(char *filename)
 // Multi memory lab 4 exercise 5
 //----------------------------------------------------------------------
 
-// void printPageTable(AddrSpace *addr){
-//     TranslationEntry *pageTable = addr->pageTable;
+void printPageTable(AddrSpace *addr){
+    TranslationEntry *pageTable = addr->pageTable;
     
-//     for (unsigned int i = 0; i < addr->numPages; i++)
-//     {
-//         pageTable[i].virtualPage = i; // for now, virtual page # = phys page #s
-//         pageTable[i].physicalPage = machine->AllocationMemory();
-//         pageTable[i].valid = TRUE;
-//         pageTable[i].use = FALSE;
-//         pageTable[i].dirty = FALSE;
-//         pageTable[i].readOnly = FALSE; // if the code segment was entirely on
-//                                        // a separate page, we could set its
-//                                        // pages to be read-only
-//     }
+    for (unsigned int i = 0; i < addr->numPages; i++)
+    {
+        printf("%d ", pageTable[i].virtualPage);
+        printf("%d", pageTable[i].physicalPage);
+        printf("%d ", pageTable[i].valid);
+        printf("%d ", pageTable[i].use);
+        printf("%d ", pageTable[i].dirty);
+        printf("%d\n", pageTable[i].readOnly);
+    }
     
-// }
+}
 
 void ForkThread(int num){
     printf("\033[95m No.%d Thread Start \033[0m\n", num);
@@ -93,6 +91,8 @@ void StartMultiProcess(char *filename, int threadNum){
     }
 
     currentThread->space = space[0];
+    printPageTable(space[0]);
+    printPageTable(space[1]);
     for (int i = 1; i < threadNum; ++i){
         space[i]->InitRegisters();
         space[i]->RestoreState();
