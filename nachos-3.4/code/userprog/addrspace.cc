@@ -99,15 +99,15 @@ AddrSpace::AddrSpace(OpenFile *executable)
     }
     
     
-    for (unsigned int i = 0; i < numPages; i++)
-    {
-        printf("%d ", pageTable[i].virtualPage);
-        printf("%d", pageTable[i].physicalPage);
-        printf("%d ", pageTable[i].valid);
-        printf("%d ", pageTable[i].use);
-        printf("%d ", pageTable[i].dirty);
-        printf("%d\n", pageTable[i].readOnly);
-    }
+    // for (unsigned int i = 0; i < numPages; i++)
+    // {
+    //     printf("%d ", pageTable[i].virtualPage);
+    //     printf("%d ", pageTable[i].physicalPage);
+    //     printf("%d ", pageTable[i].valid);
+    //     printf("%d ", pageTable[i].use);
+    //     printf("%d ", pageTable[i].dirty);
+    //     printf("%d\n", pageTable[i].readOnly);
+    // }
 
     // zero out the entire address space, to zero the unitialized data segment
     // and the stack segment
@@ -195,4 +195,22 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+}
+
+//----------------------------------------------------------------------
+// print page table
+//----------------------------------------------------------------------
+
+void AddrSpace::printPageTable(){
+    
+    for (unsigned int i = 0; i < numPages; ++i)
+    {
+        printf("%d ", pageTable[i].virtualPage);
+        printf("%d ", pageTable[i].physicalPage);
+        printf("%d ", pageTable[i].valid);
+        printf("%d ", pageTable[i].use);
+        printf("%d ", pageTable[i].dirty);
+        printf("%d\n", pageTable[i].readOnly);
+    }
+    
 }

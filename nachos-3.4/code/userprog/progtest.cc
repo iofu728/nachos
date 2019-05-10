@@ -76,15 +76,16 @@ void StartMultiProcess(char *filename, int threadNum){
     }
 
     currentThread->space = space[0];
-    printPageTable(space[0]);
-    printPageTable(space[1]);
+
     for (int i = 1; i < threadNum; ++i){
+        space[i]->printPageTable();
         space[i]->InitRegisters();
         space[i]->RestoreState();
         thread[i]->space = space[i];
         thread[i]->Fork(ForkThread, (void *)i);
         currentThread->Yield();
     }
+    space[0]->printPageTable();
     for (int i = 0; i < threadNum; ++i) delete executable[i];
     space[0]->InitRegisters();
     space[0]->RestoreState();
