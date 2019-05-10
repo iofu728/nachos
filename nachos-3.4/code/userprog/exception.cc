@@ -84,7 +84,7 @@ void PageTableFaultHandler(unsigned int vpn)
   machine->pageTable[pos].readOnly = FALSE;
   delete openfile;
   
-  ASSERT(FALSE);
+  //ASSERT(FALSE);
 }
 
 // TLB Miss Fault Handler + PageTable Fault Handler
