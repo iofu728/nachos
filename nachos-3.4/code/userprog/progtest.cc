@@ -49,21 +49,6 @@ void StartProcess(char *filename)
 // Multi memory lab 4 exercise 5
 //----------------------------------------------------------------------
 
-void printPageTable(AddrSpace *addr){
-    TranslationEntry *pageTable = addr->pageTable;
-    
-    for (unsigned int i = 0; i < addr->numPages; i++)
-    {
-        printf("%d ", pageTable[i].virtualPage);
-        printf("%d", pageTable[i].physicalPage);
-        printf("%d ", pageTable[i].valid);
-        printf("%d ", pageTable[i].use);
-        printf("%d ", pageTable[i].dirty);
-        printf("%d\n", pageTable[i].readOnly);
-    }
-    
-}
-
 void ForkThread(int num){
     printf("\033[95m No.%d Thread Start \033[0m\n", num);
     machine->Run();
