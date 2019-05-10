@@ -104,20 +104,37 @@ AddrSpace::AddrSpace(OpenFile *executable)
     bzero(machine->mainMemory, size);
 
     // then, copy in the code and data segments into memory
-    if (noffH.code.size > 0)
-    {
+    fileSystem->Create("virtual_memory", size);
+    OpenFile *openfile = fileSysten->Open("virtual_memory");
+    if (openfile == NULL) ASSERT(false); 
+    if (noffH.code.size > 0){
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n, fileaddr 0x%x",
               noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr);
-        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-                           noffH.code.size, noffH.code.inFileAddr);
+        int pos1 = noffH.code.inFileAddr;
+        int pos2 = noffH.code.virtualAddr;
+        char char_stream;
+        for (int i = 0; i < noffH.code.size; ++i){
+            executable->ReadAt(&(char_stream), 1, pos1++);
+            openfile->WriteAt(&(char_stream), 1, pos2++);
+        }
+        
+        // executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+        //                    noffH.code.size, noffH.code.inFileAddr);
     }
-    if (noffH.initData.size > 0)
-    {
+    if (noffH.initData.size > 0){
+        int pos1 = noffH.initData.inFileAddr;
+        int pos2 = noffH.initData.virtualAddr;
+        char char_stream;
+        for (int i = 0; i < noffH.initData.size; ++i){
+            executable->ReadAt(&(char_stream), 1, pos1++);
+            openfile->WriteAt(&(char_stream), 1, pos2++);
+        }
         DEBUG('a', "Initializing data segment, at 0x%x, size %d, fileaddr 0x%x\n",
               noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr);
-        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
-                           noffH.initData.size, noffH.initData.inFileAddr);
+        // executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+        //                    noffH.initData.size, noffH.initData.inFileAddr);
     }
+    delete openfile;
 }
 
 //----------------------------------------------------------------------

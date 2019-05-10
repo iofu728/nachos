@@ -56,9 +56,36 @@
 int time = 0, replace = 1;
 int tlbTime[TLBSize] = {0, 0, 0, 0};
 // PageTable Fault Hander
-void PageTableFaultHandler()
+void PageTableFaultHandler(unsigned int vpn)
 {
+
   DEBUG('a', "\033[91mPage Table Fault \033[0m\n");
+  OpenFile *openfile = fileSystem->Open("virtual_memory");
+  int pos = machine->AllocationMemory();
+  if (pos == -1) {
+    pos = 0;
+    for (int i = 0; i < machine->pageTableSize; ++i){
+      if (machine->pageTable[i].physicalPage == 0) {
+        if (machine->pageTable[i].dirty == TRUE) {
+          openfile->WriteAt(&(machine->mainMemory[pos * PageSize]),
+            PageSize, machine->pageTable[i].virtualPage * PageSize);
+          machine->pageTable[i].valid = FALSE;
+          break;
+        }
+      }
+    }
+    
+  }
+  openfile->ReadAt(&(machine->mainMemory[pos * PageSize]), PageSize, vpn * PageSize);
+  machine->PageTable[vpn].valid = TRUE;
+  machine->PageTable[vpn].physicalPage = pos;
+  machine->PageTable[vpn].use = FALSE;
+  machine->PageTable[vpn].dirty = FALSE;
+  machine->PageTable[vpn].readOnly = FALSE;
+  delete openfile;
+  
+  
+
   ASSERT(FALSE);
 }
 
@@ -76,7 +103,7 @@ void PageFaultHandler()
 
   if (machine->tlb == NULL)
   {
-    PageTableFaultHandler();
+    PageTableFaultHandler(vpn);
   }
   else
   {
@@ -129,7 +156,7 @@ void PageFaultHandler()
     }
     else
     {
-      PageTableFaultHandler();
+      PageTableFaultHandler(vpn);
     }
   }
 }

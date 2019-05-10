@@ -222,7 +222,7 @@ void Machine::WriteRegister(int num, int value)
 int Machine::AllocationMemory()
 {
     int allocationPower = (bitMap & (~(bitMap - 1))), allocationId = 0;
-    ASSERT(allocationPower);
+    if (!allocationPower) return -1;
     while (allocationPower >> allocationId != 1)
         ++allocationId;
     bitMap = bitMap ^ allocationPower;
