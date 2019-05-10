@@ -49,6 +49,23 @@ void StartProcess(char *filename)
 // Multi memory lab 4 exercise 5
 //----------------------------------------------------------------------
 
+// void printPageTable(AddrSpace *addr){
+//     TranslationEntry *pageTable = addr->pageTable;
+    
+//     for (unsigned int i = 0; i < addr->numPages; i++)
+//     {
+//         pageTable[i].virtualPage = i; // for now, virtual page # = phys page #s
+//         pageTable[i].physicalPage = machine->AllocationMemory();
+//         pageTable[i].valid = TRUE;
+//         pageTable[i].use = FALSE;
+//         pageTable[i].dirty = FALSE;
+//         pageTable[i].readOnly = FALSE; // if the code segment was entirely on
+//                                        // a separate page, we could set its
+//                                        // pages to be read-only
+//     }
+    
+// }
+
 void ForkThread(int num){
     printf("\033[95m No.%d Thread Start \033[0m\n", num);
     machine->Run();
