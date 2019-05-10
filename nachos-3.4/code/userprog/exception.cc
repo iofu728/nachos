@@ -148,6 +148,8 @@ void ExceptionHandler(ExceptionType which)
     printf("TLB MIss Time: %d, Ratio TLB Miss:%.2f%\n", TLBMiss,
            TLBMiss * 100.0 / totalRun);
     machine->ClearMemory();
+    currentThread->Finish();
+    
     int nextPC = machine->ReadRegister(NextPCReg);
     machine->WriteRegister(PCReg, nextPC);
     interrupt->Halt();
