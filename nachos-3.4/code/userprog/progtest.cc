@@ -63,8 +63,15 @@ void StartMultiProcess(char *filename, int threadNum){
     OpenFile *executable[threadNum] = {};
     AddrSpace *space[threadNum] = {};
     Thread *thread[threadNum] = {};
+    char threadNameList[MaxThreadNum][20] = {};
     for (int i = 0; i < threadNum; ++i) executable[i] = fileSystem->Open(filename);
-    for (int i = 1; i < threadNum; ++i) thread[i] = new Thread("Thread");
+    for (int i = 1; i < threadNum; ++i) {
+        char str[20];
+        sprintf(str, "%d", i);
+        strcat(threadNameList[i], "Thread");
+        strcat(threadNameList[i], str);
+        thread[i] = new Thread(threadNameList[i]);
+    }
 
     if (executable[0] == NULL){
         printf("Unable to open file %s\n", filename);
@@ -75,17 +82,17 @@ void StartMultiProcess(char *filename, int threadNum){
         space[i] = new AddrSpace(executable[i]);
     }
 
-    currentThread->space = space[1];
+    currentThread->space = space[0];
 
-    for (int i = 0; i < threadNum - 1; ++i){
+    for (int i = 1; i < threadNum; ++i){
         space[i]->printPageTable();
         space[i]->InitRegisters();
         space[i]->RestoreState();
         thread[i]->space = space[i];
+        thread[i]->setPriority(2);
         thread[i]->Fork(ForkThread, (void *)i);
         currentThread->Yield();
     }
-    space[0]->printPageTable();
     for (int i = 0; i < threadNum; ++i) delete executable[i];
     space[0]->InitRegisters();
     space[0]->RestoreState();
