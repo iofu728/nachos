@@ -77,19 +77,17 @@ AddrSpace::AddrSpace(OpenFile *executable)
     size = numPages * PageSize;
     DEBUG('a', "\033[93mPage num:%d \033[0m\n", numPages);
 
-    ASSERT(numPages <= NumPhysPages); // check we're not trying
+    // ASSERT(numPages <= NumPhysPages); // check we're not trying
                                       // to run anything too big --
                                       // at least until we have
                                       // virtual memory
 
-    DEBUG('a', "Initializing address space, num pages %d, size %d\n",
-          numPages, size);
+    DEBUG('a', "Initializing address space, num pages %d, size %d\n", numPages, size);
     // first, set up the translation
-    pageTable = new TranslationEntry[numPages];
-    for (i = 0; i < numPages; i++)
-    {
+    pageTable = new TranslationEntry[NumPhysPages];
+    for (i = 0; i < NumPhysPages; i++) {
         pageTable[i].virtualPage = i; // for now, virtual page # = phys page #s
-        pageTable[i].physicalPage = machine->AllocationMemory();
+        pageTable[i].physicalPage = i;
         pageTable[i].valid = FALSE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -98,7 +96,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
                                        // pages to be read-only
     }
     
-
     // zero out the entire address space, to zero the unitialized data segment
     // and the stack segment
     bzero(machine->mainMemory, size);

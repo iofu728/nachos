@@ -59,7 +59,7 @@ int tlbTime[TLBSize] = {0, 0, 0, 0};
 void PageTableFaultHandler(unsigned int vpn)
 {
 
-  DEBUG('a', "\033[91mPage Table Fault \033[0m\n");
+  DEBUG('a', "\033[95mPage Table Fault \033[0m\n");
   OpenFile *openfile = fileSystem->Open("virtual_memory");
   int pos = machine->AllocationMemory();
   if (pos == -1) {
@@ -77,11 +77,11 @@ void PageTableFaultHandler(unsigned int vpn)
     
   }
   openfile->ReadAt(&(machine->mainMemory[pos * PageSize]), PageSize, vpn * PageSize);
-  machine->pageTable[vpn].valid = TRUE;
-  machine->pageTable[vpn].physicalPage = pos;
-  machine->pageTable[vpn].use = FALSE;
-  machine->pageTable[vpn].dirty = FALSE;
-  machine->pageTable[vpn].readOnly = FALSE;
+  machine->pageTable[pos].valid = TRUE;
+  machine->pageTable[pos].virtualPage = vpn;
+  machine->pageTable[pos].use = FALSE;
+  machine->pageTable[pos].dirty = FALSE;
+  machine->pageTable[pos].readOnly = FALSE;
   delete openfile;
   
   ASSERT(FALSE);
