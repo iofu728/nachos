@@ -75,9 +75,9 @@ void StartMultiProcess(char *filename, int threadNum){
         space[i] = new AddrSpace(executable[i]);
     }
 
-    currentThread->space = space[0];
+    currentThread->space = space[1];
 
-    for (int i = 1; i < threadNum; ++i){
+    for (int i = 0; i < threadNum - 1; ++i){
         space[i]->printPageTable();
         space[i]->InitRegisters();
         space[i]->RestoreState();

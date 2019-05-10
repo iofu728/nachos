@@ -31,7 +31,7 @@ public:
 
   void SaveState();    // Save/restore address space-specific
   void RestoreState(); // info on a context switch
-  void printPageTable()); // lab4 print page table
+  void printPageTable(); // lab4 print page table
 
 private:
   TranslationEntry *pageTable; // Assume linear page table translation
