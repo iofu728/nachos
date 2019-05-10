@@ -105,30 +105,21 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
     // then, copy in the code and data segments into memory
     fileSystem->Create("virtual_memory", size);
-    OpenFile *openfile = fileSysten->Open("virtual_memory");
+    OpenFile *openfile = fileSystem->Open("virtual_memory");
     if (openfile == NULL) ASSERT(false); 
     if (noffH.code.size > 0){
-        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n, fileaddr 0x%x",
+        DEBUG('a', "Initializing code segment, at 0x%x, size %d, fileaddr 0x%x\n",
               noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr);
-        int pos1 = noffH.code.inFileAddr;
-        int pos2 = noffH.code.virtualAddr;
-        char char_stream;
-        for (int i = 0; i < noffH.code.size; ++i){
-            executable->ReadAt(&(char_stream), 1, pos1++);
-            openfile->WriteAt(&(char_stream), 1, pos2++);
-        }
-        
+        char char_stream[numPages * PageSize];
+        executable->ReadAt((char_stream), noffH.code.size, noffH.code.inFileAddr);
+        openfile->WriteAt((char_stream), noffH.code.size, noffH.code.virtualAddr * PageSize);
         // executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
         //                    noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0){
-        int pos1 = noffH.initData.inFileAddr;
-        int pos2 = noffH.initData.virtualAddr;
-        char char_stream;
-        for (int i = 0; i < noffH.initData.size; ++i){
-            executable->ReadAt(&(char_stream), 1, pos1++);
-            openfile->WriteAt(&(char_stream), 1, pos2++);
-        }
+        char char_stream[numPages * PageSize];
+        executable->ReadAt((char_stream), noffH.initData.size, noffH.initData.inFileAddr);
+        openfile->WriteAt((char_stream), noffH.initData.size, noffH.initData.virtualAddr * PageSize);
         DEBUG('a', "Initializing data segment, at 0x%x, size %d, fileaddr 0x%x\n",
               noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr);
         // executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),

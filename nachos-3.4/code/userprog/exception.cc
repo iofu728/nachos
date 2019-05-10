@@ -77,15 +77,13 @@ void PageTableFaultHandler(unsigned int vpn)
     
   }
   openfile->ReadAt(&(machine->mainMemory[pos * PageSize]), PageSize, vpn * PageSize);
-  machine->PageTable[vpn].valid = TRUE;
-  machine->PageTable[vpn].physicalPage = pos;
-  machine->PageTable[vpn].use = FALSE;
-  machine->PageTable[vpn].dirty = FALSE;
-  machine->PageTable[vpn].readOnly = FALSE;
+  machine->pageTable[vpn].valid = TRUE;
+  machine->pageTable[vpn].physicalPage = pos;
+  machine->pageTable[vpn].use = FALSE;
+  machine->pageTable[vpn].dirty = FALSE;
+  machine->pageTable[vpn].readOnly = FALSE;
   delete openfile;
   
-  
-
   ASSERT(FALSE);
 }
 
