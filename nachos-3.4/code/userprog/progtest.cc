@@ -65,6 +65,9 @@ void StartMultiProcess(char *filename, int threadNum){
     Thread *thread[threadNum] = {};
     for (int i = 0; i < threadNum; ++i) executable[i] = fileSystem->Open(filename);
     for (int i = 1; i < threadNum; ++i) thread[i] = new Thread("Thread");
+    for (int i = 0; i < threadNum; ++i){
+        delete executable[i];
+    }
 
     if (executable[0] == NULL){
         printf("Unable to open file %s\n", filename);
@@ -83,9 +86,7 @@ void StartMultiProcess(char *filename, int threadNum){
         thread[i]->Fork(ForkThread, (void *)i);
         currentThread->Yield();
     }
-    for (int i = 0; i < threadNum; ++i){
-        delete executable[i];
-    }
+
     space[0]->InitRegisters();
     space[0]->RestoreState();
     printf("\033[95m No.0 Thread Start \033[0m\n"); 
