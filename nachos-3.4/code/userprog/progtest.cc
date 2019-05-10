@@ -65,7 +65,7 @@ void StartMultiProcess(char *filename, int threadNum){
     Thread *thread[threadNum] = {};
     char threadNameList[MaxThreadNum][20] = {};
     for (int i = 0; i < threadNum; ++i) executable[i] = fileSystem->Open(filename);
-    for (int i = 1; i < threadNum; ++i) {
+    for (int i = 0; i < threadNum - 1; ++i) {
         char str[20];
         sprintf(str, "%d", i);
         strcat(threadNameList[i], "Thread");
@@ -82,9 +82,9 @@ void StartMultiProcess(char *filename, int threadNum){
         space[i] = new AddrSpace(executable[i]);
     }
 
-    currentThread->space = space[0];
+    currentThread->space = space[threadNum - 1];
 
-    for (int i = 1; i < threadNum; ++i){
+    for (int i = 0; i < threadNum - 1; ++i){
         space[i]->printPageTable();
         space[i]->InitRegisters();
         space[i]->RestoreState();
