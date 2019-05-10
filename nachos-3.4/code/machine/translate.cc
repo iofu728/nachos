@@ -238,6 +238,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
 		for (entry = NULL, i = 0; i < TLBSize; i++)
 			if (tlb[i].valid && (tlb[i].virtualPage == vpn))
 			{
+				printf("vpn %d, pyn %d\n", vpn, tlb[i].physicalPage);
 				entry = &tlb[i]; // FOUND!
 				int lruNum= LRUTLB[i];
 				for(int j = 0;j < TLBSize;++j){

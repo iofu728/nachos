@@ -98,16 +98,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
                                        // pages to be read-only
     }
     
-    
-    // for (unsigned int i = 0; i < numPages; i++)
-    // {
-    //     printf("%d ", pageTable[i].virtualPage);
-    //     printf("%d ", pageTable[i].physicalPage);
-    //     printf("%d ", pageTable[i].valid);
-    //     printf("%d ", pageTable[i].use);
-    //     printf("%d ", pageTable[i].dirty);
-    //     printf("%d\n", pageTable[i].readOnly);
-    // }
 
     // zero out the entire address space, to zero the unitialized data segment
     // and the stack segment
@@ -116,15 +106,15 @@ AddrSpace::AddrSpace(OpenFile *executable)
     // then, copy in the code and data segments into memory
     if (noffH.code.size > 0)
     {
-        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
-              noffH.code.virtualAddr, noffH.code.size);
+        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n, fileaddr 0x%x",
+              noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr);
         executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
                            noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0)
     {
-        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n",
-              noffH.initData.virtualAddr, noffH.initData.size);
+        DEBUG('a', "Initializing data segment, at 0x%x, size %d, fileaddr 0x%x\n",
+              noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr);
         executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
                            noffH.initData.size, noffH.initData.inFileAddr);
     }
