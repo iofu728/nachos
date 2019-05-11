@@ -10,7 +10,7 @@
 
 /*
  Copyright (c) 1992-1993 The Regents of the University of California.
- All rights reserved.  See copyright.h for copyright notice and limitation
+ All rights reserved.  See copyright.h for copyright notice and limitation 
  of liability and disclaimer of warranty provisions.
  */
 
@@ -21,8 +21,8 @@
 
 #ifdef HOST_MIPS
 
-/* Registers that must be saved during a context switch.
- * These are the offsets from the beginning of the Thread object,
+/* Registers that must be saved during a context switch. 
+ * These are the offsets from the beginning of the Thread object, 
  * in bytes, used in switch.s
  */
 #define SP 0
@@ -59,7 +59,7 @@
 #define WhenDonePCState (S2 / 4 - 1)
 #define StartupPCState (S3 / 4 - 1)
 
-#endif  // HOST_MIPS
+#endif // HOST_MIPS
 
 #ifdef HOST_SPARC
 
@@ -88,7 +88,7 @@
 #define InitialArgState (I1 / 4 - 1)
 #define WhenDonePCState (I2 / 4 - 1)
 #define StartupPCState (I3 / 4 - 1)
-#endif  // HOST_SPARC
+#endif // HOST_SPARC
 
 #ifdef HOST_SNAKE
 
@@ -123,7 +123,7 @@
 #define InitialArgState (S1 / 4 - 1)
 #define WhenDonePCState (S2 / 4 - 1)
 #define StartupPCState (S3 / 4 - 1)
-#endif  // HOST_SNAKE
+#endif // HOST_SNAKE
 
 #ifdef HOST_i386
 
@@ -152,4 +152,4 @@
 #define StartupPC % ecx
 #endif
 
-#endif  // SWITCH_H
+#endif // SWITCH_H

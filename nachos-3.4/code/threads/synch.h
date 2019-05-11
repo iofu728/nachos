@@ -18,8 +18,8 @@
 #define SYNCH_H
 
 #include "copyright.h"
-#include "list.h"
 #include "thread.h"
+#include "list.h"
 
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
@@ -36,19 +36,20 @@
 // and some other thread might have called P or V, so the true value might
 // now be different.
 
-class Semaphore {
- public:
-  Semaphore(char* debugName, int initialValue);  // set initial value
-  ~Semaphore();                                  // de-allocate semaphore
-  char* getName() { return name; }               // debugging assist
+class Semaphore
+{
+public:
+  Semaphore(char *debugName, int initialValue); // set initial value
+  ~Semaphore();                                 // de-allocate semaphore
+  char *getName() { return name; }              // debugging assist
 
-  void P();  // these are the only operations on a semaphore
-  void V();  // they are both *atomic*
+  void P(); // these are the only operations on a semaphore
+  void V(); // they are both *atomic*
 
- private:
-  char* name;   // useful for debugging
-  int value;    // semaphore value, always >= 0
-  List* queue;  // threads waiting in P() for the value to be > 0
+private:
+  char *name;  // useful for debugging
+  int value;   // semaphore value, always >= 0
+  List *queue; // threads waiting in P() for the value to be > 0
 };
 
 // The following class defines a "lock".  A lock can be BUSY or FREE.
@@ -63,25 +64,26 @@ class Semaphore {
 // may release it.  As with semaphores, you can't read the lock value
 // (because the value might change immediately after you read it).
 
-class Lock {
- public:
-  Lock(char* debugName);            // initialize lock to be FREE
-  ~Lock();                          // deallocate lock
-  char* getName() { return name; }  // debugging assist
+class Lock
+{
+public:
+  Lock(char *debugName);           // initialize lock to be FREE
+  ~Lock();                         // deallocate lock
+  char *getName() { return name; } // debugging assist
 
-  void Acquire();  // these are the only operations on a lock
-  void Release();  // they are both *atomic*
+  void Acquire(); // these are the only operations on a lock
+  void Release(); // they are both *atomic*
 
-  bool isHeldByCurrentThread();  // true if the current thread
-                                 // holds this lock.  Useful for
-                                 // checking in Release, and in
-                                 // Condition variable ops below.
+  bool isHeldByCurrentThread(); // true if the current thread
+                                // holds this lock.  Useful for
+                                // checking in Release, and in
+                                // Condition variable ops below.
 
- private:
-  char* name;        // for debugging
-                     // plus some other stuff you'll need to define
-  Semaphore* mutex;  // lab 3 add mutex
-  Thread* thread;    // lab 3 add thread
+private:
+  char *name;       // for debugging
+                    // plus some other stuff you'll need to define
+  Semaphore *mutex; // lab 3 add mutex
+  Thread *thread;   // lab 3 add thread
 };
 
 // The following class defines a "condition variable".  A condition
@@ -116,71 +118,74 @@ class Lock {
 // can acquire the lock, and change data structures, before the woken
 // thread gets a chance to run.
 
-class Condition {
- public:
-  Condition(char* debugName);  // initialize condition to
-                               // "no one waiting"
-  ~Condition();                // deallocate the condition
-  char* getName() { return (name); }
+class Condition
+{
+public:
+  Condition(char *debugName); // initialize condition to
+                              // "no one waiting"
+  ~Condition();               // deallocate the condition
+  char *getName() { return (name); }
 
-  void Wait(Lock* conditionLock);       // these are the 3 operations on
-                                        // condition variables; releasing the
-                                        // lock and going to sleep are
-                                        // *atomic* in Wait()
-  void Signal(Lock* conditionLock);     // conditionLock must be held by
-  void Broadcast(Lock* conditionLock);  // the currentThread for all of
-                                        // these operations
-  void BroadcastPhase(Lock* conditionLock);  // phase broadcastphase
-  void AcquirePhase();                       // get phase broadcastphase
-  void ReleasePhase();                       // get phase broadcastphase
+  void Wait(Lock *conditionLock);           // these are the 3 operations on
+                                            // condition variables; releasing the
+                                            // lock and going to sleep are
+                                            // *atomic* in Wait()
+  void Signal(Lock *conditionLock);         // conditionLock must be held by
+  void Broadcast(Lock *conditionLock);      // the currentThread for all of
+                                            // these operations
+  void BroadcastPhase(Lock *conditionLock); // phase broadcastphase
+  void AcquirePhase();                      // get phase broadcastphase
+  void ReleasePhase();                      // get phase broadcastphase
 
- private:
-  char* name;       // plus some other stuff you'll need to define
-  Lock* phase;      // two phase lock protocol lab 3 challenge 1
-  List* waitQueue;  // lab 3 add waitQueue
+private:
+  char *name;      // plus some other stuff you'll need to define
+  Lock *phase;     // two phase lock protocol lab 3 challenge 1
+  List *waitQueue; // lab 3 add waitQueue
 };
 
 // Barrier Class
 //
 // Lab 3 Challenge 1
 
-class Barrier {
- public:
-  Barrier(char* debugName, int n);  // initialize Barrier
-  ~Barrier();                       // deallocate the Barrier
+class Barrier
+{
+public:
+  Barrier(char *debugName, int n); // initialize Barrier
+  ~Barrier();                      // deallocate the Barrier
 
-  char* getName() { return name; };  // get name
-  void setBarrier();                 // set Barrier
+  char *getName() { return name; }; // get name
+  void setBarrier();                // set Barrier
 
- private:
-  char* name;
-  int waitNum;    // wait num of threads
-  int totalNum;   // total num
-  Lock* bl;       // Barrier Lock
-  Condition* bc;  // Barrier Condition
+private:
+  char *name;
+  int waitNum;   // wait num of threads
+  int totalNum;  // total num
+  Lock *bl;      // Barrier Lock
+  Condition *bc; // Barrier Condition
 };
 
 // ReadWrite Class
 //
 // Lab 3 Challenge 2
 
-class ReadWrite {
- public:
-  ReadWrite(char* debugName);  // initialize ReadWrite
-  ~ReadWrite();                // deallocate the ReadWrite
+class ReadWrite
+{
+public:
+  ReadWrite(char *debugName); // initialize ReadWrite
+  ~ReadWrite();               // deallocate the ReadWrite
 
-  char* getName() { return name; };  // get name
-  void ReadAcquire();                // read lock acquire
-  void ReadRelease();                // read lock release
-  void WriteAcquire();               // write lock acquire
-  void WriteRelease();               // write lock release
+  char *getName() { return name; }; // get name
+  void ReadAcquire();               // read lock acquire
+  void ReadRelease();               // read lock release
+  void WriteAcquire();              // write lock acquire
+  void WriteRelease();              // write lock release
 
- private:
-  char* name;
-  int readNum;  // readnum
-  Lock* mutex;  // mutex lock
-  Lock* rlock;  // read lock
-  Lock* wlock;  // write lock
+private:
+  char *name;
+  int readNum; // readnum
+  Lock *mutex; // mutex lock
+  Lock *rlock; // read lock
+  Lock *wlock; // write lock
 };
 
-#endif  // SYNCH_H
+#endif // SYNCH_H

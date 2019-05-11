@@ -22,8 +22,9 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "syscall.h"
 #include "system.h"
+#include "syscall.h"
+#include "machine.h"
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -48,13 +49,138 @@
 //	are in machine.h.
 //----------------------------------------------------------------------
 
-void ExceptionHandler(ExceptionType which) {
-  int type = machine->ReadRegister(2);
+//----------------------------------------------------------------------
+// Lab4 in 19.5.5
+//----------------------------------------------------------------------
 
-  if ((which == SyscallException) && (type == SC_Halt)) {
+int time = 0, replace = 1;
+int tlbTime[TLBSize] = {0, 0, 0, 0};
+// PageTable Fault Hander
+void PageTableFaultHandler(unsigned int vpn)
+{
+
+  DEBUG('a', "\033[95mPage Table Fault \033[0m\n");
+  OpenFile *openfile = fileSystem->Open("virtual_memory");
+  int pos = machine->AllocationMemory();
+  if (pos == -1) {
+    pos = 0;
+    for (int i = 0; i < machine->pageTableSize; ++i){
+      if (machine->pageTable[i].physicalPage == 0) {
+        if (machine->pageTable[i].dirty == TRUE) {
+          openfile->WriteAt(&(machine->mainMemory[pos * PageSize]),
+            PageSize, machine->pageTable[i].virtualPage * PageSize);
+          machine->pageTable[i].valid = FALSE;
+          break;
+        }
+      }
+    }
+    
+  }
+  openfile->ReadAt(&(machine->mainMemory[pos * PageSize]), PageSize, vpn * PageSize);
+  machine->pageTable[pos].valid = TRUE;
+  machine->pageTable[pos].virtualPage = vpn;
+  machine->pageTable[pos].use = FALSE;
+  machine->pageTable[pos].dirty = FALSE;
+  machine->pageTable[pos].readOnly = FALSE;
+  delete openfile;
+  
+  //ASSERT(FALSE);
+}
+
+// TLB Miss Fault Handler + PageTable Fault Handler
+// PageTable Fault Hander
+void PageFaultHandler()
+{
+  unsigned int vpn, offset;
+  int virtAddr, emptyTLBIndex = 0;
+
+  virtAddr = machine->ReadRegister(BadVAddrReg);
+  vpn = (unsigned)virtAddr / PageSize;
+  offset = (unsigned)virtAddr % PageSize;
+  DEBUG('a', "\033[92mVPN: 0x%x Offset:0x%x\033[0m\n", vpn, offset);
+
+  if (machine->tlb == NULL)
+  {
+    PageTableFaultHandler(vpn);
+  }
+  else
+  {
+    while (emptyTLBIndex < TLBSize && machine->tlb[emptyTLBIndex].valid)
+      ++emptyTLBIndex;
+
+    if (emptyTLBIndex == TLBSize)
+    {
+      if (!replace)
+      {
+        int minTime = 0x3fffffff;
+        for (int i = 0; i < TLBSize; ++i)
+        {
+          DEBUG('a', "\033[92m TLBTime: %d \033[0m\n", tlbTime[i]);
+          if (tlbTime[i] < minTime)
+          {
+            minTime = tlbTime[i];
+            emptyTLBIndex = i;
+          }
+        }
+      }
+      else
+      {
+        int maxTime = -1;
+        for (int i = 0; i < TLBSize; ++i)
+          if (machine->LRUTLB[i] > maxTime)
+          {
+            maxTime = machine->LRUTLB[i];
+            emptyTLBIndex = i;
+          }
+        int lruNUm = machine->LRUTLB[emptyTLBIndex];
+        for (int i = 0; i < TLBSize; ++i)
+        {
+          if (machine->LRUTLB[i] <= lruNUm && machine->LRUTLB[i] < TLBSize)
+            ++machine->LRUTLB[i];
+          if (emptyTLBIndex == i)
+            machine->LRUTLB[i] = 1;
+          DEBUG('a', "\033[92m LRUTLB: %d \n", machine->LRUTLB[i]);
+        }
+      }
+    }
+
+    if (machine->pageTable[vpn].valid)
+    {
+      printf("\033[92m TLB Index:%d \033[0m\n", emptyTLBIndex);
+      machine->tlb[emptyTLBIndex] = machine->pageTable[vpn];
+      ++tlbTime[emptyTLBIndex];
+      ++TLBMiss;
+      ++time;
+    }
+    else
+    {
+      PageTableFaultHandler(vpn);
+    }
+  }
+}
+
+// Exception Handler entry function
+void ExceptionHandler(ExceptionType which)
+{
+  int type = machine->ReadRegister(2);
+  if (which == PageFaultException)
+  {
+    PageFaultHandler();
+  }
+  else if ((which == SyscallException) && (type == SC_Halt))
+  {
     DEBUG('a', "Shutdown, initiated by user program.\n");
+    printf("TLB MIss Time: %d, Ratio TLB Miss:%.2f%\n", TLBMiss,
+           TLBMiss * 100.0 / totalRun);
+    machine->ClearMemory();
+    currentThread->Finish();
+    
+    int nextPC = machine->ReadRegister(NextPCReg);
+    machine->WriteRegister(PCReg, nextPC);
     interrupt->Halt();
-  } else {
+  }
+  else
+  {
     printf("Unexpected user mode exception %d %d\n", which, type);
     ASSERT(FALSE);
   }

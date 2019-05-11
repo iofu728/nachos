@@ -9,36 +9,36 @@
 #define SYSTEM_H
 
 #include "copyright.h"
-#include "interrupt.h"
-#include "scheduler.h"
-#include "stats.h"
-#include "thread.h"
-#include "timer.h"
 #include "utility.h"
+#include "thread.h"
+#include "scheduler.h"
+#include "interrupt.h"
+#include "stats.h"
+#include "timer.h"
 
 // Initialization and cleanup routines
-extern void Initialize(int argc, char **argv);  // Initialization,
-                                                // called before anything else
-extern void Cleanup();                          // Cleanup, called when
-                                                // Nachos is done.
+extern void Initialize(int argc, char **argv); // Initialization,
+											   // called before anything else
+extern void Cleanup();						   // Cleanup, called when
+											   // Nachos is done.
 
-extern Thread *currentThread;        // the thread holding the CPU
-extern Thread *threadToBeDestroyed;  // the thread that just finished
-extern Scheduler *scheduler;         // the ready list
-extern Interrupt *interrupt;         // interrupt status
-extern Statistics *stats;            // performance metrics
-extern Timer *timer;                 // the hardware alarm clock
+extern Thread *currentThread;		// the thread holding the CPU
+extern Thread *threadToBeDestroyed; // the thread that just finished
+extern Scheduler *scheduler;		// the ready list
+extern Interrupt *interrupt;		// interrupt status
+extern Statistics *stats;			// performance metrics
+extern Timer *timer;				// the hardware alarm clock
 
 #define MaxThreadNum 128
-extern bool threadQueue[MaxThreadNum];  // lab1 thread scheduling
-extern Thread *thread[MaxThreadNum];    // lab1 threads
+extern bool threadQueue[MaxThreadNum]; // lab1 thread scheduling
+extern Thread *thread[MaxThreadNum];   // lab1 threads
 
 #ifdef USER_PROGRAM
 #include "machine.h"
-extern Machine *machine;  // user program memory and registers
+extern Machine *machine; // user program memory and registers
 #endif
 
-#ifdef FILESYS_NEEDED  // FILESYS or FILESYS_STUB
+#ifdef FILESYS_NEEDED // FILESYS or FILESYS_STUB
 #include "filesys.h"
 extern FileSystem *fileSystem;
 #endif
@@ -53,4 +53,4 @@ extern SynchDisk *synchDisk;
 extern PostOffice *postOffice;
 #endif
 
-#endif  // SYSTEM_H
+#endif // SYSTEM_H

@@ -36,8 +36,7 @@ extern void AssignNameToSocket(char *socketName, int sockID);
 extern void DeAssignNameToSocket(char *socketName);
 extern bool PollSocket(int sockID);
 extern void ReadFromSocket(int sockID, char *buffer, int packetSize);
-extern void SendToSocket(int sockID, char *buffer, int packetSize,
-                         char *toName);
+extern void SendToSocket(int sockID, char *buffer, int packetSize, char *toName);
 
 // Process control: abort, exit, and sleep
 extern void Abort();
@@ -58,13 +57,14 @@ extern void DeallocBoundedArray(char *p, int size);
 
 // Other C library routines that are used by Nachos.
 // These are assumed to be portable, so we don't include a wrapper.
-extern "C" {
-int atoi(const char *str);
-double atof(const char *str);
-int abs(int i);
+extern "C"
+{
+    int atoi(const char *str);
+    double atof(const char *str);
+    int abs(int i);
 
-#include <stdio.h>   // for printf, fprintf
-#include <string.h>  // for DEBUG, etc.
+#include <stdio.h>  // for printf, fprintf
+#include <string.h> // for DEBUG, etc.
 }
 
-#endif  // SYSDEP_H
+#endif // SYSDEP_H

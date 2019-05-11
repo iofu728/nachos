@@ -41,8 +41,8 @@
 #include "utility.h"
 
 #ifdef USER_PROGRAM
-#include "addrspace.h"
 #include "machine.h"
+#include "addrspace.h"
 #endif
 
 // CPU register state to be saved on context switch.
@@ -52,10 +52,16 @@
 
 // Size of the thread's private execution stack.
 // WATCH OUT IF THIS ISN'T BIG ENOUGH!!!!!
-#define StackSize (4 * 1024)  // in words
+#define StackSize (4 * 1024) // in words
 
 // Thread state
-enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
+enum ThreadStatus
+{
+  JUST_CREATED,
+  RUNNING,
+  READY,
+  BLOCKED
+};
 
 // lab1 ThreadStatusString
 const char ThreadStatusString[4][15] = {"JUST_CREATED", "RUNNING", "READY",
@@ -75,56 +81,58 @@ extern void ThreadPrint(int arg);
 //  Some threads also belong to a user address space; threads
 //  that only run in the kernel have a NULL address space.
 
-class Thread {
- private:
+class Thread
+{
+private:
   // NOTE: DO NOT CHANGE the order of these first two members.
   // THEY MUST be in this position for SWITCH to work.
-  int *stackTop;                         // the current stack pointer
-  void *machineState[MachineStateSize];  // all registers except for stackTop
-  int uid;                               // lab1 use id
-  int tid;                               // lab1 thread id
-  int priority;                          // lab2 priority
+  int *stackTop;                        // the current stack pointer
+  void *machineState[MachineStateSize]; // all registers except for stackTop
+  int uid;                              // lab1 use id
+  int tid;                              // lab1 thread id
+  int priority;                         // lab2 priority
 
- public:
-  Thread(char *debugName);  // initialize a Thread
-  ~Thread();                // deallocate a Thread
-                            // NOTE -- thread being deleted
-                            // must not be running when delete
-                            // is called
+public:
+  Thread(char *debugName); // initialize a Thread
+  ~Thread();               // deallocate a Thread
+                           // NOTE -- thread being deleted
+                           // must not be running when delete
+                           // is called
 
   // basic thread operations
 
-  void Fork(VoidFunctionPtr func, void *arg);  // Make thread run (*func)(arg)
-  void Yield();                                // Relinquish the CPU if any
-                                               // other thread is runnable
-  void Sleep();                                // Put the thread to sleep and
-                                               // relinquish the processor
-  void Finish();                               // The thread is done executing
-  void CheckOverflow();                        // Check if thread has
-                                               // overflowed its stack
+  void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(arg)
+  void Yield();                               // Relinquish the CPU if any
+                                              // other thread is runnable
+  void Sleep();                               // Put the thread to sleep and
+                                              // relinquish the processor
+  void Finish();                              // The thread is done executing
+  void CheckOverflow();                       // Check if thread has
+                                              // overflowed its stack
 
-  int getStatus() { return status; }                     // lab1 get Status
-  void setStatus(ThreadStatus st) { status = st; }       //
-  char *getName() { return name; }                       //
-  void setName(char *threadName) { name = threadName; }  // lab1 set thread name
-  void Print() {                                         //
-    printf("%s, %d, :q:%d, %s,\n", name, uid, tid,       //
-           ThreadStatusString[getStatus()]);             //
-  }                                                      //
-  int getUid() { return uid; }                           // lab1 get uid
-  void setUid(int userId) { uid = userId; }              // lab1 set uid
-  int getTid() { return tid; }                           // lab1 get tid
-  void setTid(int threadId) { tid = threadId; }          // lab1 set tid
-  int getPriority() { return priority; }                 // lab2 get priority
-  void setPriority(int prio) { priority = prio; }        // lab2 set priority
+  int getStatus() { return status; }                    // lab1 get Status
+  void setStatus(ThreadStatus st) { status = st; }      //
+  char *getName() { return name; }                      //
+  void setName(char *threadName) { name = threadName; } // lab1 set thread name
+  void Print()
+  {                                                //
+    printf("%s, %d, :q:%d, %s,\n", name, uid, tid, //
+           ThreadStatusString[getStatus()]);       //
+  }                                                //
+  int getUid() { return uid; }                     // lab1 get uid
+  void setUid(int userId) { uid = userId; }        // lab1 set uid
+  int getTid() { return tid; }                     // lab1 get tid
+  void setTid(int threadId) { tid = threadId; }    // lab1 set tid
+  int getPriority() { return priority; }           // lab2 get priority
+  void setPriority(int prio) { priority = prio; }  // lab2 set priority
 
- private:
+private:
   // some of the private data for this class is listed above
 
-  int *stack;           // Bottom of the stack
-                        // NULL if this is the main thread
-                        // (If NULL, don't deallocate stack)
-  ThreadStatus status;  // ready, running or blocked
+  int *stack;          // Bottom of the stack
+                       // NULL if this is the main thread
+                       // (If NULL, don't deallocate stack)
+  ThreadStatus status; // ready, running or blocked
   char *name;
 
   void StackAllocate(VoidFunctionPtr func, void *arg);
@@ -136,27 +144,28 @@ class Thread {
   // one for its state while executing user code, one for its state
   // while executing kernel code.
 
-  int userRegisters[NumTotalRegs];  // user-level CPU register state
+  int userRegisters[NumTotalRegs]; // user-level CPU register state
 
- public:
-  void SaveUserState();     // save user-level register state
-  void RestoreUserState();  // restore user-level register state
+public:
+  void SaveUserState();    // save user-level register state
+  void RestoreUserState(); // restore user-level register state
 
-  AddrSpace *space;  // User code this thread is running.
+  AddrSpace *space; // User code this thread is running.
 #endif
 };
 
 // Magical machine-dependent routines, defined in switch.s
 
-extern "C" {
-// First frame on thread execution stack;
-//   	enable interrupts
-//	call "func"
-//	(when func returns, if ever) call ThreadFinish()
-void ThreadRoot();
+extern "C"
+{
+  // First frame on thread execution stack;
+  //   	enable interrupts
+  //	call "func"
+  //	(when func returns, if ever) call ThreadFinish()
+  void ThreadRoot();
 
-// Stop running oldThread and start running newThread
-void SWITCH(Thread *oldThread, Thread *newThread);
+  // Stop running oldThread and start running newThread
+  void SWITCH(Thread *oldThread, Thread *newThread);
 }
 
-#endif  // THREAD_H
+#endif // THREAD_H

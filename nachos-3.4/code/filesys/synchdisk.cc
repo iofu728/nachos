@@ -14,8 +14,8 @@
 // All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
-#include "synchdisk.h"
 #include "copyright.h"
+#include "synchdisk.h"
 
 //----------------------------------------------------------------------
 // DiskRequestDone
@@ -23,10 +23,12 @@
 //	C++ can't handle pointers to member functions.
 //----------------------------------------------------------------------
 
-static void DiskRequestDone(int arg) {
-  SynchDisk* disk = (SynchDisk*)arg;
+static void
+DiskRequestDone(int arg)
+{
+    SynchDisk *disk = (SynchDisk *)arg;
 
-  disk->RequestDone();
+    disk->RequestDone();
 }
 
 //----------------------------------------------------------------------
@@ -38,10 +40,11 @@ static void DiskRequestDone(int arg) {
 //	   (usually, "DISK")
 //----------------------------------------------------------------------
 
-SynchDisk::SynchDisk(char* name) {
-  semaphore = new Semaphore("synch disk", 0);
-  lock = new Lock("synch disk lock");
-  disk = new Disk(name, DiskRequestDone, (int)this);
+SynchDisk::SynchDisk(char *name)
+{
+    semaphore = new Semaphore("synch disk", 0);
+    lock = new Lock("synch disk lock");
+    disk = new Disk(name, DiskRequestDone, (int)this);
 }
 
 //----------------------------------------------------------------------
@@ -50,10 +53,11 @@ SynchDisk::SynchDisk(char* name) {
 //	abstraction.
 //----------------------------------------------------------------------
 
-SynchDisk::~SynchDisk() {
-  delete disk;
-  delete lock;
-  delete semaphore;
+SynchDisk::~SynchDisk()
+{
+    delete disk;
+    delete lock;
+    delete semaphore;
 }
 
 //----------------------------------------------------------------------
@@ -65,11 +69,12 @@ SynchDisk::~SynchDisk() {
 //	"data" -- the buffer to hold the contents of the disk sector
 //----------------------------------------------------------------------
 
-void SynchDisk::ReadSector(int sectorNumber, char* data) {
-  lock->Acquire();  // only one disk I/O at a time
-  disk->ReadRequest(sectorNumber, data);
-  semaphore->P();  // wait for interrupt
-  lock->Release();
+void SynchDisk::ReadSector(int sectorNumber, char *data)
+{
+    lock->Acquire(); // only one disk I/O at a time
+    disk->ReadRequest(sectorNumber, data);
+    semaphore->P(); // wait for interrupt
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -81,11 +86,12 @@ void SynchDisk::ReadSector(int sectorNumber, char* data) {
 //	"data" -- the new contents of the disk sector
 //----------------------------------------------------------------------
 
-void SynchDisk::WriteSector(int sectorNumber, char* data) {
-  lock->Acquire();  // only one disk I/O at a time
-  disk->WriteRequest(sectorNumber, data);
-  semaphore->P();  // wait for interrupt
-  lock->Release();
+void SynchDisk::WriteSector(int sectorNumber, char *data)
+{
+    lock->Acquire(); // only one disk I/O at a time
+    disk->WriteRequest(sectorNumber, data);
+    semaphore->P(); // wait for interrupt
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -94,4 +100,7 @@ void SynchDisk::WriteSector(int sectorNumber, char* data) {
 //	request to finish.
 //----------------------------------------------------------------------
 
-void SynchDisk::RequestDone() { semaphore->V(); }
+void SynchDisk::RequestDone()
+{
+    semaphore->V();
+}
