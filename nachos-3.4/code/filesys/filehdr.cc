@@ -174,7 +174,11 @@ void setTime(char *paramName, char *name){
 //----------------------------------------------------------------------
 
 void FileHeader::SetCreateTime(){
-    setTime(createTime, "Create Time");
+    time_t timep;
+    time (&timep);
+    strncpy(createTime, asctime(gmtime(&timep)), 25);
+    createTime[24] = '\0';
+    printf("\033[92m Create Time: %s \n \033[0m", createTime);
 }
 
 //----------------------------------------------------------------------
@@ -183,7 +187,11 @@ void FileHeader::SetCreateTime(){
 //----------------------------------------------------------------------
 
 void FileHeader::SetLastVisterTime(){
-    setTime(lastVisterTime, "Last Vister Time");
+    time_t timep;
+    time (&timep);
+    strncpy(lastVisterTime, asctime(gmtime(&timep)), 25);
+    lastVisterTime[24] = '\0';
+    printf("\033[92m Last Vsiter Time: %s \n \033[0m", createTime);
 }
 
 //----------------------------------------------------------------------
@@ -192,5 +200,9 @@ void FileHeader::SetLastVisterTime(){
 //----------------------------------------------------------------------
 
 void FileHeader::SetLastModifyTime(){
-    setTime(lastModifiedTime, "Last Modify Time");
+    time_t timep;
+    time (&timep);
+    strncpy(lastModifiedTime, asctime(gmtime(&timep)), 25);
+    lastModifiedTime[24] = '\0';
+    printf("\033[92m Last Modified Time: %s \n \033[0m", lastModifiedTime);
 }
