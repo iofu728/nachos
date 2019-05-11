@@ -207,6 +207,21 @@ bool FileSystem::Create(char *name, int initialSize)
             else
             {
                 success = TRUE;
+                int dot_pos = 0, j = 0;
+                for (int i = 0; i < strlen(name); ++i){
+                    if (name[i] == '.') {
+                        dot_pos = i;
+                        break;
+                    }
+                }
+                for (int i = dot_pos + 1; i < strlen(name); ++i){
+                    hdr->type[j] = name[i];
+                }
+                hdr->type[j] = '\0';
+                hdr->SetCreateTime();
+                hdr->SetLastModifyTime();
+                hdr->SetLastVisterTime();
+                hdr->SectorPos = sector;
                 // everthing worked, flush all changes back to disk
                 hdr->WriteBack(sector);
                 directory->WriteBack(directoryFile);
@@ -217,25 +232,7 @@ bool FileSystem::Create(char *name, int initialSize)
         delete freeMap;
     }
     delete directory;
-    int dot_pos = 0, j = 0;
-    for (int i = 0; i < strlen(name); ++i){
-        if (name[i] == '.') {
-            dot_pos = i;
-            break;
-        }
-    }
-    for (int i = dot_pos + 1; i < strlen(name); ++i){
-        hdr->type[j] = name[i];
-    }
-    hdr->type[j] = '\0';
-    hdr->SetCreateTime();
-    hdr->SetLastModifyTime();
-    hdr->SetLastVisterTime();
-    hdr->SectorPos = sector;
 
-    hdr->WriteBack(sector);
-    directory->WriteBack(directoryFile);
-    freeMap->WriteBack(freeMapFile);
     return success;
 }
 
