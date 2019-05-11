@@ -26,6 +26,7 @@
 
 #include "system.h"
 #include "filehdr.h"
+#include "time.h"
 
 //----------------------------------------------------------------------
 // FileHeader::Allocate
@@ -132,19 +133,64 @@ FileHeader::Print()
     int i, j, k;
     char *data = new char[SectorSize];
 
-    printf("FileHeader contents.  File size: %d.  File blocks:\n", numBytes);
+    printf("FileHeader contents.  File size: %d. \033[93m File type %s \033[0m File blocks:\n", numBytes, type);
+    printf("\033[92m sectorPos: %d\n\033[0m", SectorPos);
+    printf("\033[92m CreateTime: %s\n\033[0m", createTime);
+    printf("\033[92m LastVisterTime: %s\n\033[0m", lastVisterTime);
+    printf("\033[92m LastModifyTime: %s\n\033[0m", lastModifiedTime);
     for (i = 0; i < numSectors; i++)
 	printf("%d ", dataSectors[i]);
     printf("\nFile contents:\n");
     for (i = k = 0; i < numSectors; i++) {
 	synchDisk->ReadSector(dataSectors[i], data);
         for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++) {
-	    if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
-		printf("%c", data[j]);
+            if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
+                printf("%c", data[j]);
             else
-		printf("\\%x", (unsigned char)data[j]);
-	}
+		        printf("\\%x", (unsigned char)data[j]);
+        }
         printf("\n"); 
     }
     delete [] data;
+}
+
+
+//----------------------------------------------------------------------
+// set time
+// 	set time lab5 exercise 2
+//----------------------------------------------------------------------
+
+void setTime(char *paramName, char *name){
+    time_t timep;
+    time (&timep);
+    strncpy(paramName, asctime(gmtime(&timep)), 25);
+    paramName[24] = '\0';
+    printf("\033[92m %s: %s \n \033[0m", name, paramName);
+}
+
+//----------------------------------------------------------------------
+// FileHeader::SetCreateTime
+// 	set create time lab5 exercise 2
+//----------------------------------------------------------------------
+
+void FileHeader::SetCreateTime(){
+    setTime(createTime, "Create Time");
+}
+
+//----------------------------------------------------------------------
+// FileHeader::SetLastVisterTime
+// 	set last vister time lab5 exercise 2
+//----------------------------------------------------------------------
+
+void FileHeader::SetLastVisterTime(){
+    setTime(lastVisterTime, "Last Vister Time");
+}
+
+//----------------------------------------------------------------------
+// FileHeader::SetLastModifyTime
+// 	set last modify time lab5 exercise 2
+//----------------------------------------------------------------------
+
+void FileHeader::SetLastModifyTime(){
+    setTime(lastModifiedTime, "Last Modify Time");
 }
