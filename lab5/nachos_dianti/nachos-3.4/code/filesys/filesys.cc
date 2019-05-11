@@ -222,6 +222,7 @@ bool FileSystem::Create(char *name, int initialSize)
                 hdr->SetLastModifyTime();
                 hdr->SetLastVisterTime();
                 hdr->SectorPos = sector;
+                printf("%d", sector);
                 // everthing worked, flush all changes back to disk
                 hdr->WriteBack(sector);
                 directory->WriteBack(directoryFile);
