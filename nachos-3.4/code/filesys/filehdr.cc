@@ -163,7 +163,8 @@ FileHeader::Print()
 void setTime(char *paramName, char *name){
     time_t timep;
     time (&timep);
-    strncpy(paramName, asctime(gmtime(&timep)), 25);
+    struct tm *timeinfo = localtime(&timep);
+    strncpy(paramName, asctime(timeinfo), 25);
     paramName[24] = '\0';
     printf("\033[92m %s: %s \n \033[0m", name, paramName);
 }
@@ -176,7 +177,8 @@ void setTime(char *paramName, char *name){
 void FileHeader::SetCreateTime(){
     time_t timep;
     time (&timep);
-    strncpy(createTime, asctime(gmtime(&timep)), 25);
+    struct tm *timeinfo = localtime(&timep);
+    strncpy(createTime, asctime(timeinfo), 25);
     createTime[24] = '\0';
     printf("\033[92m Create Time: %s \n \033[0m", createTime);
 }
@@ -189,7 +191,8 @@ void FileHeader::SetCreateTime(){
 void FileHeader::SetLastVisterTime(){
     time_t timep;
     time (&timep);
-    strncpy(lastVisterTime, asctime(gmtime(&timep)), 25);
+    struct tm *timeinfo = localtime(&timep);
+    strncpy(lastVisterTime, asctime(timeinfo), 25);
     lastVisterTime[24] = '\0';
     printf("\033[92m Last Vsiter Time: %s \n \033[0m", createTime);
 }
@@ -202,7 +205,8 @@ void FileHeader::SetLastVisterTime(){
 void FileHeader::SetLastModifyTime(){
     time_t timep;
     time (&timep);
-    strncpy(lastModifiedTime, asctime(gmtime(&timep)), 25);
+    struct tm *timeinfo = localtime(&timep);
+    strncpy(lastModifiedTime, asctime(timeinfo), 25);
     lastModifiedTime[24] = '\0';
     printf("\033[92m Last Modified Time: %s \n \033[0m", lastModifiedTime);
 }

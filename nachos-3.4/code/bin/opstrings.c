@@ -70,7 +70,8 @@ char *normalops[] = {
 	"074",
 	"075",
 	"076",
-	"077"};
+	"077"
+};
 
 char *specialops[] = {
 	"sll",
@@ -138,3 +139,4 @@ char *specialops[] = {
 	"076",
 	"077",
 };
+
