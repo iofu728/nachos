@@ -52,6 +52,7 @@
 
 #include "utility.h"
 #include "system.h"
+#include <time.h>
 
 #ifdef THREADS
 extern int testnum;
@@ -86,6 +87,11 @@ main(int argc, char **argv)
 
     DEBUG('t', "Entering main");
     (void) Initialize(argc, argv);
+	time_t rawtime;
+    time(&rawtime);
+	struct tm *timeinfo = localtime(&rawtime);
+
+    printf("The current date/time is: %s\n", asctime(timeinfo));
     
 #ifdef THREADS
     // for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
