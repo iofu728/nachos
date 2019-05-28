@@ -17,9 +17,14 @@
 #include "disk.h"
 #include "bitmap.h"
 
-#define MaxFileNameLen 4
-#define NumDirect ((SectorSize - 3 * sizeof(int) - 79) / sizeof(int))
-#define MaxFileSize (NumDirect * SectorSize)
+#define HeaderIntNum 2
+#define HeaderTimeNum 3
+#define MaxFileTimeLen 26
+#define MaxFileNameLen 5
+#define HeaderStringLen MaxFileNameLen + HeaderTimeNum * MaxFileTimeLen
+
+#define NumDirect 	((SectorSize - (HeaderIntNum * sizeof(int) + HeaderStringLen * sizeof(char))) / sizeof(int))
+#define MaxFileSize 	(NumDirect * SectorSize)
 
 // The following class defines the Nachos "file header" (in UNIX terms,  
 // the "i-node"), describing where on disk to find all of the data in the file.
@@ -70,11 +75,11 @@ class FileHeader {
     int numBytes;			// Number of bytes in the file
     int numSectors;			// Number of data sectors in the file
     int dataSectors[NumDirect];		// Disk sector numbers for each data 
-					// block in the file
-    char createTime[25];      // lab5 create time
-    char lastVisterTime[25];  // lab5 last vister time
-    char lastModifiedTime[25];// lab5 last modified time
-    char type[MaxFileNameLen];// lab5 file type
+					                        // block in the file
+    char createTime[MaxFileTimeLen];      // lab5 create time
+    char lastVisterTime[MaxFileTimeLen];  // lab5 last vister time
+    char lastModifiedTime[MaxFileTimeLen];// lab5 last modified time
+    char type[MaxFileNameLen];            // lab5 file type
 };
 
 extern char* getFileType(char *name);

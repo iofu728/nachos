@@ -206,19 +206,27 @@ FileSystem::Create(char *name, int initialSize)
                 success = FALSE; // no space on disk for data
             else
             {
+                // directory->WriteBack(directoryFile);
+                // directory->FetchFrom(directoryFile);
+
                 success = TRUE;
                 hdr->HeaderInit(getFileType(name));
                 printf("%s %d\n", getFileType(name), sector);
+                hdr->SectorPos = sector;
                 // everthing worked, flush all changes back to disk
                 hdr->WriteBack(sector);
                 directory->WriteBack(directoryFile);
                 freeMap->WriteBack(freeMapFile);
+
             }
             delete hdr;
         }
         delete freeMap;
     }
     delete directory;
+    // printf("\033[93m Begin Test %s \033[0m \n");
+    // Directory *directory1 = new Directory(NumDirEntries);
+    // directory1->FetchFrom(directoryFile);
     return success;
 }
 

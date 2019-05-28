@@ -144,10 +144,10 @@ FileHeader::Print()
     printf("\033[92m LastVisterTime: %s\n\033[0m", lastVisterTime);
     printf("\033[92m LastModifyTime: %s\n\033[0m", lastModifiedTime);
     for (i = 0; i < numSectors; i++)
-	printf("%d ", dataSectors[i]);
+    	printf("%d ", dataSectors[i]);
     printf("\nFile contents:\n");
     for (i = k = 0; i < numSectors; i++) {
-	synchDisk->ReadSector(dataSectors[i], data);
+	    synchDisk->ReadSector(dataSectors[i], data);
         for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++) {
             if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
                 printf("%c", data[j]);

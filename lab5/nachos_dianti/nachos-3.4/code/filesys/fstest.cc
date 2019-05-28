@@ -50,9 +50,9 @@ Copy(char *from, char *to)
 // Create a Nachos file of the same length
     DEBUG('f', "Copying file %s, size %d, to file %s\n", from, fileLength, to);
     if (!fileSystem->Create(to, fileLength)) {	 // Create Nachos file
-	printf("Copy: couldn't create output file %s\n", to);
-	fclose(fp);
-	return;
+        printf("Copy: couldn't create output file %s\n", to);
+        fclose(fp);
+        return;
     }
     
     openFile = fileSystem->Open(to);

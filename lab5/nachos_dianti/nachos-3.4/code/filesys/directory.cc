@@ -39,8 +39,12 @@ Directory::Directory(int size)
 {
     table = new DirectoryEntry[size];
     tableSize = size;
-    for (int i = 0; i < tableSize; i++)
+    for (int i = 0; i < tableSize; i++){
 	    table[i].inUse = FALSE;
+        // table[i].sector = 0;
+    }
+    for (int i = 0; i < tableSize; i++)
+        printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
 }
 
 //----------------------------------------------------------------------
@@ -64,9 +68,12 @@ void
 Directory::FetchFrom(OpenFile *file)
 {
     // printf("file name");
+    Print();
+
     (void) file->ReadAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
-    for (int i = 0; i < tableSize; i++)
-	    printf("%d\n", table[i].inUse);
+    Print();
+    // for (int i = 0; i < tableSize; i++)
+	//     printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
 }
 
 //----------------------------------------------------------------------
@@ -79,11 +86,13 @@ Directory::FetchFrom(OpenFile *file)
 void
 Directory::WriteBack(OpenFile *file)
 {
-    for (int i = 0; i < tableSize; i++)
-	    printf("%d\n", table[i].inUse);
+    Print();
+    // for (int i = 0; i < tableSize; i++)
+	//     printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
     (void) file->WriteAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
-    for (int i = 0; i < tableSize; i++)
-	    printf("%d\n", table[i].inUse);
+    Print();
+    // for (int i = 0; i < tableSize; i++)
+	//     printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
 }
 
 //----------------------------------------------------------------------
@@ -99,7 +108,7 @@ Directory::FindIndex(char *name)
 {
     printf("Need Name: %s\n", name);
     for (int i = 0; i < tableSize; i++) {
-        printf("%s %d %d\n", table[i].name, table[i].inUse, strncmp(table[i].name, name, FileNameMaxLen));
+        printf("%s %d %d %d\n", table[i].name, table[i].inUse, strncmp(table[i].name, name, FileNameMaxLen), table[i].sector);
         if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
 	        return i;
     }
@@ -144,10 +153,10 @@ Directory::Add(char *name, int newSector)
 
     for (int i = 0; i < tableSize; i++)
         if (!table[i].inUse) {
-            table[i].inUse = 1;
+            table[i].inUse = TRUE;
             strncpy(table[i].name, name, FileNameMaxLen); 
             table[i].sector = newSector;
-            printf("Directory Id: %d %d\n", i, table[i].inUse);
+            printf("Directory Id: %d %d %s %d\n", i, table[i].inUse, table[i].name, table[i].sector);
         return TRUE;
 	}
     return FALSE;	// no space.  Fix when we have extensible files.
@@ -167,7 +176,7 @@ Directory::Remove(char *name)
     int i = FindIndex(name);
 
     if (i == -1)
-	    return FALSE; 		// name not in directory
+	return FALSE; 		// name not in directory
     table[i].inUse = FALSE;
     return TRUE;	
 }
@@ -198,11 +207,11 @@ Directory::Print()
 
     printf("Directory contents:\n");
     for (int i = 0; i < tableSize; i++)
-	if (table[i].inUse) {
-	    printf("Name: %s, Sector: %d\n", table[i].name, table[i].sector);
-	    hdr->FetchFrom(table[i].sector);
-	    hdr->Print();
-	}
+        if (table[i].inUse) {
+            printf("Id: %d, Name: %s, InUse: %d, Sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
+            hdr->FetchFrom(table[i].sector);
+            hdr->Print();
+        }
     printf("\n");
     delete hdr;
 }
