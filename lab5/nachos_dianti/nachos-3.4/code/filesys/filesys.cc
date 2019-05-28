@@ -78,13 +78,16 @@
 //----------------------------------------------------------------------
 
 FileSystem::FileSystem(bool format)
-{ 
+{
     DEBUG('f', "Initializing the file system.\n");
     if (format) {
         BitMap *freeMap = new BitMap(NumSectors);
         Directory *directory = new Directory(NumDirEntries);
-	FileHeader *mapHdr = new FileHeader;
-	FileHeader *dirHdr = new FileHeader;
+        FileHeader *mapHdr = new FileHeader;
+        mapHdr->HeaderInit("MapH");
+
+        FileHeader *dirHdr = new FileHeader;
+        dirHdr->HeaderInit("DirH");
 
         DEBUG('f', "Formatting the file system.\n");
 
@@ -186,50 +189,36 @@ FileSystem::Create(char *name, int initialSize)
     directory->FetchFrom(directoryFile);
 
     if (directory->Find(name) != -1)
-      success = FALSE;			// file is already in directory
-    else {	
+        success = FALSE; // file is already in directory
+    else
+    {
         freeMap = new BitMap(NumSectors);
         freeMap->FetchFrom(freeMapFile);
-        sector = freeMap->Find();	// find a sector to hold the file header
-    	if (sector == -1) 		
-            success = FALSE;		// no free block for file header 
+        sector = freeMap->Find(); // find a sector to hold the file header
+        if (sector == -1)
+            success = FALSE; // no free block for file header
         else if (!directory->Add(name, sector))
-            success = FALSE;	// no space in directory
-	else {
-    	    hdr = new FileHeader;
-	    if (!hdr->Allocate(freeMap, initialSize))
-            	success = FALSE;	// no space on disk for data
-	    else {	
-	    	success = TRUE;
-		// everthing worked, flush all changes back to disk
-    	    	hdr->WriteBack(sector); 		
-    	    	directory->WriteBack(directoryFile);
-    	    	freeMap->WriteBack(freeMapFile);
-	    }
+            success = FALSE; // no space in directory
+        else
+        {
+            hdr = new FileHeader;
+            if (!hdr->Allocate(freeMap, initialSize))
+                success = FALSE; // no space on disk for data
+            else
+            {
+                success = TRUE;
+                hdr->HeaderInit(getFileType(name));
+                printf("%s %d\n", getFileType(name), sector);
+                // everthing worked, flush all changes back to disk
+                hdr->WriteBack(sector);
+                directory->WriteBack(directoryFile);
+                freeMap->WriteBack(freeMapFile);
+            }
             delete hdr;
-	}
+        }
         delete freeMap;
     }
     delete directory;
-    int dot_pos = 0, j = 0;
-    for (int i = 0; i < strlen(name); ++i){
-        if (name[i] == '.') {
-            dot_pos = i;
-            break;
-        }
-    }
-    for (int i = dot_pos + 1; i < strlen(name); ++i){
-        hdr->type[j] = name[i];
-    }
-    hdr->type[j] = '\0';
-    hdr->SetCreateTime();
-    hdr->SetLastModifyTime();
-    hdr->SetLastVisterTime();
-    hdr->SectorPos = sector;
-
-    hdr->WriteBack(sector);
-    directory->WriteBack(directoryFile);
-    freeMap->WriteBack(freeMapFile);
     return success;
 }
 

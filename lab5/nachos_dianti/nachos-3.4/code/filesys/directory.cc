@@ -40,7 +40,7 @@ Directory::Directory(int size)
     table = new DirectoryEntry[size];
     tableSize = size;
     for (int i = 0; i < tableSize; i++)
-	table[i].inUse = FALSE;
+	    table[i].inUse = FALSE;
 }
 
 //----------------------------------------------------------------------
@@ -63,7 +63,10 @@ Directory::~Directory()
 void
 Directory::FetchFrom(OpenFile *file)
 {
+    // printf("file name");
     (void) file->ReadAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
+    for (int i = 0; i < tableSize; i++)
+	    printf("%d\n", table[i].inUse);
 }
 
 //----------------------------------------------------------------------
@@ -76,7 +79,11 @@ Directory::FetchFrom(OpenFile *file)
 void
 Directory::WriteBack(OpenFile *file)
 {
+    for (int i = 0; i < tableSize; i++)
+	    printf("%d\n", table[i].inUse);
     (void) file->WriteAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
+    for (int i = 0; i < tableSize; i++)
+	    printf("%d\n", table[i].inUse);
 }
 
 //----------------------------------------------------------------------
@@ -90,9 +97,12 @@ Directory::WriteBack(OpenFile *file)
 int
 Directory::FindIndex(char *name)
 {
-    for (int i = 0; i < tableSize; i++)
+    printf("Need Name: %s\n", name);
+    for (int i = 0; i < tableSize; i++) {
+        printf("%s %d %d\n", table[i].name, table[i].inUse, strncmp(table[i].name, name, FileNameMaxLen));
         if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen))
-	    return i;
+	        return i;
+    }
     return -1;		// name not in directory
 }
 
@@ -134,9 +144,10 @@ Directory::Add(char *name, int newSector)
 
     for (int i = 0; i < tableSize; i++)
         if (!table[i].inUse) {
-            table[i].inUse = TRUE;
+            table[i].inUse = 1;
             strncpy(table[i].name, name, FileNameMaxLen); 
             table[i].sector = newSector;
+            printf("Directory Id: %d %d\n", i, table[i].inUse);
         return TRUE;
 	}
     return FALSE;	// no space.  Fix when we have extensible files.
@@ -156,7 +167,7 @@ Directory::Remove(char *name)
     int i = FindIndex(name);
 
     if (i == -1)
-	return FALSE; 		// name not in directory
+	    return FALSE; 		// name not in directory
     table[i].inUse = FALSE;
     return TRUE;	
 }

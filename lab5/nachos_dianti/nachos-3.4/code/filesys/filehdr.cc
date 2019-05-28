@@ -47,8 +47,13 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
     if (freeMap->NumClear() < numSectors)
 	return FALSE;		// not enough space
 
-    for (int i = 0; i < numSectors; i++)
-	dataSectors[i] = freeMap->Find();
+    if (numSectors < NumDirect) {
+        DEBUG('f', "Allocating using direct indexing only\n");
+        for (int i = 0; i < numSectors; i++)
+            dataSectors[i] = freeMap->Find();
+    } else {
+        ASSERT(FALSE);
+    }
     return TRUE;
 }
 
@@ -154,6 +159,17 @@ FileHeader::Print()
     delete [] data;
 }
 
+//----------------------------------------------------------------------
+// init header when create
+// 	init header lab5 exercise 2
+//----------------------------------------------------------------------
+
+void FileHeader::HeaderInit(char *fileType){
+    setFileType(fileType);
+    SetCreateTime();
+    SetLastModifyTime();
+    SetLastVisterTime();
+}
 
 //----------------------------------------------------------------------
 // set time
@@ -175,12 +191,13 @@ void setTime(char *paramName, char *name){
 //----------------------------------------------------------------------
 
 void FileHeader::SetCreateTime(){
-    time_t timep;
-    time (&timep);
-    struct tm *timeinfo = localtime(&timep);
-    strncpy(createTime, asctime(timeinfo), 25);
-    createTime[24] = '\0';
-    printf("\033[92m Create Time: %s \n \033[0m", createTime);
+    setTime(createTime, "Create Time");
+    // time_t timep;
+    // time (&timep);
+    // struct tm *timeinfo = localtime(&timep);
+    // strncpy(createTime, asctime(timeinfo), 25);
+    // createTime[24] = '\0';
+    // printf("\033[92m Create Time: %s \n \033[0m", createTime);
 }
 
 //----------------------------------------------------------------------
@@ -189,12 +206,13 @@ void FileHeader::SetCreateTime(){
 //----------------------------------------------------------------------
 
 void FileHeader::SetLastVisterTime(){
-    time_t timep;
-    time (&timep);
-    struct tm *timeinfo = localtime(&timep);
-    strncpy(lastVisterTime, asctime(timeinfo), 25);
-    lastVisterTime[24] = '\0';
-    printf("\033[92m Last Vsiter Time: %s \n \033[0m", createTime);
+    setTime(lastVisterTime, "Last Vister Time");
+    // time_t timep;
+    // time (&timep);
+    // struct tm *timeinfo = localtime(&timep);
+    // strncpy(lastVisterTime, asctime(timeinfo), 25);
+    // lastVisterTime[24] = '\0';
+    // printf("\033[92m Last Vsiter Time: %s \n \033[0m", createTime);
 }
 
 //----------------------------------------------------------------------
@@ -203,10 +221,22 @@ void FileHeader::SetLastVisterTime(){
 //----------------------------------------------------------------------
 
 void FileHeader::SetLastModifyTime(){
-    time_t timep;
-    time (&timep);
-    struct tm *timeinfo = localtime(&timep);
-    strncpy(lastModifiedTime, asctime(timeinfo), 25);
-    lastModifiedTime[24] = '\0';
-    printf("\033[92m Last Modified Time: %s \n \033[0m", lastModifiedTime);
+    setTime(lastModifiedTime, "Last Modified Time");
+    // time_t timep;
+    // time (&timep);
+    // struct tm *timeinfo = localtime(&timep);
+    // strncpy(lastModifiedTime, asctime(timeinfo), 25);
+    // lastModifiedTime[24] = '\0';
+    // printf("\033[92m Last Modified Time: %s \n \033[0m", lastModifiedTime);
+}
+
+//----------------------------------------------------------------------
+// get file type from file name
+//----------------------------------------------------------------------
+
+char* getFileType(char *name){
+    char *dot = strrchr(name, '.');
+    if (!dot || dot == name) return "";
+    return dot + 1;
+
 }

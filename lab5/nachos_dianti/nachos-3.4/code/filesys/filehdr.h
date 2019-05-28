@@ -17,6 +17,7 @@
 #include "disk.h"
 #include "bitmap.h"
 
+#define MaxFileNameLen 4
 #define NumDirect ((SectorSize - 3 * sizeof(int) - 79) / sizeof(int))
 #define MaxFileSize (NumDirect * SectorSize)
 
@@ -55,21 +56,26 @@ class FileHeader {
 					// in bytes
 
     void Print();			// Print the contents of the file.
-    char type[4]; // lab5 file type
+    
 
-    void SetCreateTime();      // lab5 set create time 
-    void SetLastVisterTime();  // lab5 set last visiter time 
-    void SetLastModifyTime();  // lab5 set last modified time 
-    int SectorPos;             // lab5 sector position
+    void SetCreateTime();       // lab5 set create time 
+    void SetLastVisterTime();   // lab5 set last visiter time 
+    void SetLastModifyTime();   // lab5 set last modified time 
+    void HeaderInit(char *type);// lab5 init header set
+    void setFileType(char* fileType) { strcmp(fileType, "") ? strcpy(type, fileType) : strcpy(type, "None"); }
+                                // lab5 set file type
+    int SectorPos;              // lab5 sector position
 
   private:
     int numBytes;			// Number of bytes in the file
     int numSectors;			// Number of data sectors in the file
     int dataSectors[NumDirect];		// Disk sector numbers for each data 
 					// block in the file
-    char createTime[25];       // lab5 create time
+    char createTime[25];      // lab5 create time
     char lastVisterTime[25];  // lab5 last vister time
     char lastModifiedTime[25];// lab5 last modified time
+    char type[MaxFileNameLen];// lab5 file type
 };
 
+extern char* getFileType(char *name);
 #endif // FILEHDR_H
