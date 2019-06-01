@@ -17,14 +17,17 @@
 #include "disk.h"
 #include "bitmap.h"
 
-#define HeaderIntNum 2
+#define HeaderIntNum 3
 #define HeaderTimeNum 3
 #define MaxFileTimeLen 26
 #define MaxFileNameLen 5
 #define HeaderStringLen MaxFileNameLen + HeaderTimeNum * MaxFileTimeLen
 
 #define NumDirect 	((SectorSize - (HeaderIntNum * sizeof(int) + HeaderStringLen * sizeof(char))) / sizeof(int))
-#define MaxFileSize 	(NumDirect * SectorSize)
+#define IndirectNum 1
+#define SectorInt 32
+#define MaxDirectNum NumDirect - IndirectNum
+#define MaxFileSize 	(MaxDirectNum) * SectorSize + IndirectNum * SectorInt * SectorSize
 
 // The following class defines the Nachos "file header" (in UNIX terms,  
 // the "i-node"), describing where on disk to find all of the data in the file.
@@ -66,8 +69,13 @@ class FileHeader {
     void SetCreateTime();       // lab5 set create time 
     void SetLastVisterTime();   // lab5 set last visiter time 
     void SetLastModifyTime();   // lab5 set last modified time 
-    void HeaderInit(char *type);// lab5 init header set
-    void setFileType(char* fileType) { strcmp(fileType, "") ? strcpy(type, fileType) : strcpy(type, "None"); }
+    void HeaderInit(char *type, int sector);// lab5 init header set
+    void setFileType(char* fileType) {
+      printf("size of file type %d\n", sizeof type);
+      strcmp(fileType, "") ?  strncpy(type, fileType, sizeof type - 1) : strncpy(type, "None", sizeof type - 1);
+      type[sizeof type - 1] = '\0';
+      printf("file type %s\n", type);
+    }
                                 // lab5 set file type
     int SectorPos;              // lab5 sector position
 

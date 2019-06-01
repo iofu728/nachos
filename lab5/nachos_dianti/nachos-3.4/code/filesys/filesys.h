@@ -87,9 +87,11 @@ class FileSystem {
 
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
-					// represented as a file
+	   			            	// represented as a file
    OpenFile* directoryFile;		// "Root" directory -- list of 
    							    // file names, represented as a file
+   OpenFile* nameFile;           // lab 5 name file
+   int nowNamePos;               // lab 5 name file
 };
 
 #endif // FILESYS

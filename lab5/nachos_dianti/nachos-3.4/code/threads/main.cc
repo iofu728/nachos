@@ -93,21 +93,21 @@ main(int argc, char **argv)
 
     printf("The current date/time is: %s\n", asctime(timeinfo));
     
-#ifdef THREADS
-    // for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
-    //   argCount = 1;
-    //   switch (argv[0][1]) {
-    //   case 'q':
-    //     testnum = atoi(argv[1]);
-    //     argCount++;
-    //     break;
-    //   default:
-    //     testnum = 1;
-    //     break;
-    //   }
-    // }
+#if THREADS && !FILESYS
+    for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
+      argCount = 1;
+      switch (argv[0][1]) {
+      case 'q':
+        testnum = atoi(argv[1]);
+        argCount++;
+        break;
+      default:
+        testnum = 1;
+        break;
+      }
+    }
 
-    // ThreadTest();
+    ThreadTest();
 #endif
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {

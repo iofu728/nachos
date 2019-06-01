@@ -31,7 +31,7 @@ OpenFile::OpenFile(int sector)
 { 
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
-    printf("Sector %d\n", sector);
+    printf("Init Open file Sector %d\n", sector);
     hdr->SectorPos = sector;
     seekPosition = 0;
 }
@@ -137,6 +137,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 
     // read in all the full and partial sectors that we need
     buf = new char[numSectors * SectorSize];
+    printf("LastSector: %d\n", lastSector);
     for (i = firstSector; i <= lastSector; i++)	
         synchDisk->ReadSector(hdr->ByteToSector(i * SectorSize), 
 					&buf[(i - firstSector) * SectorSize]);
@@ -153,7 +154,9 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 int
 OpenFile::WriteAt(char *from, int numBytes, int position)
 {
+    printf("221\n");
     int fileLength = hdr->FileLength();
+    printf("222\n");
     int i, firstSector, lastSector, numSectors;
     bool firstAligned, lastAligned;
     char *buf;

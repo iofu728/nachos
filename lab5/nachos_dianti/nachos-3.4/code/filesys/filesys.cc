@@ -56,6 +56,7 @@
 // sectors, so that they can be located on boot-up.
 #define FreeMapSector 		0
 #define DirectorySector 	1
+#define NameSector 2
 
 // Initial file sizes for the bitmap and directory; until the file system
 // supports extensible files, the directory size sets the maximum number 
@@ -84,65 +85,73 @@ FileSystem::FileSystem(bool format)
         BitMap *freeMap = new BitMap(NumSectors);
         Directory *directory = new Directory(NumDirEntries);
         FileHeader *mapHdr = new FileHeader;
-        mapHdr->HeaderInit("MapH");
+        mapHdr->HeaderInit("MapH", FreeMapSector);
 
         FileHeader *dirHdr = new FileHeader;
-        dirHdr->HeaderInit("DirH");
+        dirHdr->HeaderInit("DirH", DirectorySector);
 
+        FileHeader *nameHdr = new FileHeader;
+        nameHdr->HeaderInit("Name", NameSector);
+        
         DEBUG('f', "Formatting the file system.\n");
 
-    // First, allocate space for FileHeaders for the directory and bitmap
-    // (make sure no one else grabs these!)
-	freeMap->Mark(FreeMapSector);	    
-	freeMap->Mark(DirectorySector);
+        // First, allocate space for FileHeaders for the directory and bitmap
+        // (make sure no one else grabs these!)
+        freeMap->Mark(FreeMapSector);	    
+        freeMap->Mark(DirectorySector);
+        freeMap->Mark(NameSector);
 
-    // Second, allocate space for the data blocks containing the contents
-    // of the directory and bitmap files.  There better be enough space!
+        // Second, allocate space for the data blocks containing the contents
+        // of the directory and bitmap files.  There better be enough space!
 
-	ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
-	ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
+        ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
+        ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
+        ASSERT(nameHdr->Allocate(freeMap, FreeMapFileSize));
 
-    // Flush the bitmap and directory FileHeaders back to disk
-    // We need to do this before we can "Open" the file, since open
-    // reads the file header off of disk (and currently the disk has garbage
-    // on it!).
+        // Flush the bitmap and directory FileHeaders back to disk
+        // We need to do this before we can "Open" the file, since open
+        // reads the file header off of disk (and currently the disk has garbage
+        // on it!).
 
         DEBUG('f', "Writing headers back to disk.\n");
-	mapHdr->WriteBack(FreeMapSector);    
-	dirHdr->WriteBack(DirectorySector);
+        mapHdr->WriteBack(FreeMapSector);    
+        dirHdr->WriteBack(DirectorySector);
+        nameHdr->WriteBack(NameSector);
 
-    // OK to open the bitmap and directory files now
-    // The file system operations assume these two files are left open
-    // while Nachos is running.
+        // OK to open the bitmap and directory files now
+        // The file system operations assume these two files are left open
+        // while Nachos is running.
 
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
+        // directory->InitNameFile(NameSector);  // lab5 file name
      
-    // Once we have the files "open", we can write the initial version
-    // of each file back to disk.  The directory at this point is completely
-    // empty; but the bitmap has been changed to reflect the fact that
-    // sectors on the disk have been allocated for the file headers and
-    // to hold the file data for the directory and bitmap.
+        // Once we have the files "open", we can write the initial version
+        // of each file back to disk.  The directory at this point is completely
+        // empty; but the bitmap has been changed to reflect the fact that
+        // sectors on the disk have been allocated for the file headers and
+        // to hold the file data for the directory and bitmap.
 
         DEBUG('f', "Writing bitmap and directory back to disk.\n");
-	freeMap->WriteBack(freeMapFile);	 // flush changes to disk
-	directory->WriteBack(directoryFile);
+        freeMap->WriteBack(freeMapFile);	 // flush changes to disk
+        directory->WriteBack(directoryFile);
 
-	if (DebugIsEnabled('f')) {
-	    freeMap->Print();
-	    directory->Print();
+        if (DebugIsEnabled('f')) {
+            freeMap->Print();
+            directory->Print();
 
-        delete freeMap; 
-	delete directory; 
-	delete mapHdr; 
-	delete dirHdr;
-	}
+            delete freeMap; 
+            delete directory; 
+            delete mapHdr; 
+            delete dirHdr;
+            delete nameHdr;
+        }
     } else {
-    // if we are not formatting the disk, just open the files representing
-    // the bitmap and directory; these are left open while Nachos is running
+        // if we are not formatting the disk, just open the files representing
+        // the bitmap and directory; these are left open while Nachos is running
         freeMapFile = new OpenFile(FreeMapSector);
         directoryFile = new OpenFile(DirectorySector);
-    }
+     }
 }
 
 //----------------------------------------------------------------------
@@ -206,13 +215,10 @@ FileSystem::Create(char *name, int initialSize)
                 success = FALSE; // no space on disk for data
             else
             {
-                // directory->WriteBack(directoryFile);
-                // directory->FetchFrom(directoryFile);
-
                 success = TRUE;
-                hdr->HeaderInit(getFileType(name));
+                hdr->HeaderInit(getFileType(name), sector);
                 printf("%s %d\n", getFileType(name), sector);
-                hdr->SectorPos = sector;
+                // hdr->SectorPos = sector;
                 // everthing worked, flush all changes back to disk
                 hdr->WriteBack(sector);
                 directory->WriteBack(directoryFile);
@@ -224,9 +230,6 @@ FileSystem::Create(char *name, int initialSize)
         delete freeMap;
     }
     delete directory;
-    // printf("\033[93m Begin Test %s \033[0m \n");
-    // Directory *directory1 = new Directory(NumDirEntries);
-    // directory1->FetchFrom(directoryFile);
     return success;
 }
 
