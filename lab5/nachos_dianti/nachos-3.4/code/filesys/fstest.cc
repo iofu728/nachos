@@ -57,6 +57,7 @@ Copy(char *from, char *to)
     
     openFile = fileSystem->Open(to);
     ASSERT(openFile != NULL);
+    printf("Open file Over\n");
     
 // Copy the data in TransferSize chunks
     buffer = new char[TransferSize];
@@ -183,3 +184,12 @@ PerformanceTest()
     stats->Print();
 }
 
+
+//----------------------------------------------------------------------
+// Lab 5 test for multi dir
+//----------------------------------------------------------------------
+
+void CreateDir(char *name){
+    printf("\033[93m Begin Create Dir \n\033[0m");
+    fileSystem->Create(name, -1);
+}

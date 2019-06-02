@@ -38,6 +38,8 @@ class DirectoryEntry {
 					                          // the trailing '\0'
     // int name_pos;     // lab 5 name
     // int name_len;     // lab 5 name
+    int type;            // lab 5 multi-dir
+    char path[20];       // lab 5 multi-dir
 };
 
 // The following class defines a UNIX-like "directory".  Each entry in
@@ -63,7 +65,7 @@ class Directory {
     int Find(char *name);		// Find the sector number of the 
 					// FileHeader for file: "name"
 
-    bool Add(char *name, int newSector);  // Add a file name into the directory
+    bool Add(char *name, int newSector, int type);  // Add a file name into the directory
 
     bool Remove(char *name);		// Remove a file from the directory
 
@@ -73,6 +75,12 @@ class Directory {
 					            //  of the directory -- all the file
 					            //  names and their contents.
     // void InitNameFile(int sector); // name file lab 5 
+    int FindDir(char *name);          // multi-dir lab 5
+    char *FindName(char *name);       // multi-dir lab 5
+    int GetType(char *name);          // multi-dir lab 5 
+    bool IsEmpty();                   // multi-dir lab 5 
+    int GetTableSize() {return tableSize;}     // multi-dir lab 5 
+    DirectoryEntry *GetTable() {return table;} // multi-dir lab 5 
 
   private:
     int tableSize;			      // Number of directory entries

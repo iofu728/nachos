@@ -287,5 +287,4 @@ char* getFileType(char *name){
     char *dot = strrchr(name, '.');
     if (!dot || dot == name) return "";
     return dot + 1;
-
 }

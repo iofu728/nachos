@@ -61,7 +61,7 @@ extern int testnum;
 // External functions used by this file
 
 extern void ThreadTest(void), Copy(char *unixFile, char *nachosFile);
-extern void Print(char *file), PerformanceTest(void);
+extern void Print(char *file), PerformanceTest(void), CreateDir(char *name);
 extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
 
@@ -137,6 +137,10 @@ main(int argc, char **argv)
 	    ASSERT(argc > 2);
 	    Copy(*(argv + 1), *(argv + 2));
 	    argCount = 3;
+	} else if (!strcmp(*argv, "-mkdir")) {	// print a Nachos file
+	    ASSERT(argc > 1);
+	    CreateDir(*(argv + 1));
+	    argCount = 2;
 	} else if (!strcmp(*argv, "-p")) {	// print a Nachos file
 	    ASSERT(argc > 1);
 	    Print(*(argv + 1));
