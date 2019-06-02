@@ -41,8 +41,9 @@ class BitMap {
     void Clear(int which);  	// Clear the "nth" bit
     bool Test(int which);   	// Is the "nth" bit set?
     int Find();            	// Return the # of a clear bit, and as a side
-				// effect, set the bit. 
-				// If no bits are clear, return -1.
+				                    // effect, set the bit. 
+				                    // If no bits are clear, return -1.
+    int Find2(int sector);  // lab 5 exercise find 2 
     int NumClear();		// Return the number of clear bits
 
     void Print();		// Print contents of bitmap

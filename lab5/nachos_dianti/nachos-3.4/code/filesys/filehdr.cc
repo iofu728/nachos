@@ -49,8 +49,15 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 
     if (numSectors <= MaxDirectNum) {
         DEBUG('f', "Allocating using direct indexing only\n");
-        for (int i = 0; i < numSectors; i++)
-            dataSectors[i] = freeMap->Find();
+        int freeSpace = freeMap->Find2(numSectors);
+        if (freeSpace != -1) {
+            for (int i = 0; i < numSectors; ++i)
+                dataSectors[i] = freeSpace + i; 
+        } else {
+            for (int i = 0; i < numSectors; i++)
+                dataSectors[i] = freeMap->Find();
+        }
+
     } else {
         for (int i = 0; i < MaxDirectNum; ++i)
             dataSectors[i] = freeMap->Find();

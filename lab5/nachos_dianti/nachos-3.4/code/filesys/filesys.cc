@@ -315,10 +315,10 @@ FileSystem::Remove(char *name)
     OpenFile *openfile = NULL;
     int sector;
     int dirSector;
-    if (synchDisk->numVisitors[sector]) {
-        DEBUG('f', "Can't Remove This File !!!\n");
-        return FALSE;
-    }
+    // if (synchDisk->numVisitors[sector]) {
+    //     DEBUG('f', "Can't Remove This File !!!\n");
+    //     return FALSE;
+    // }
     
     directory = new Directory(NumDirEntries);
     directory->FetchFrom(directoryFile);
