@@ -59,6 +59,10 @@
 // Thread state
 enum ThreadStatus { JUST_CREATED, RUNNING, READY, BLOCKED };
 
+// lab1 ThreadStatusString
+const char ThreadStatusString[4][15] = {"JUST_CREATED", "RUNNING", "READY",
+                                        "BLOCKED"};
+
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint(int arg);	 
 
@@ -79,6 +83,9 @@ class Thread {
     // THEY MUST be in this position for SWITCH to work.
     int* stackTop;			 // the current stack pointer
     void *machineState[MachineStateSize];  // all registers except for stackTop
+  int uid;                              // lab1 use id
+  int tid;                              // lab1 thread id
+  int priority;                         // lab2 priority
 
   public:
     Thread(char* debugName);		// initialize a Thread 
@@ -98,9 +105,22 @@ class Thread {
     
     void CheckOverflow();   			// Check if thread has 
 						// overflowed its stack
-    void setStatus(ThreadStatus st) { status = st; }
-    char* getName() { return (name); }
-    void Print() { printf("%s, ", name); }
+
+  int getStatus() { return status; }                    // lab1 get Status
+  void setStatus(ThreadStatus st) { status = st; }      //
+  char *getName() { return name; }                      //
+  void setName(char *threadName) { name = threadName; } // lab1 set thread name
+  void Print()
+  {                                                //
+    printf("%s, %d, :q:%d, %s,\n", name, uid, tid, //
+           ThreadStatusString[getStatus()]);       //
+  }                                                //
+  int getUid() { return uid; }                     // lab1 get uid
+  void setUid(int userId) { uid = userId; }        // lab1 set uid
+  int getTid() { return tid; }                     // lab1 get tid
+  void setTid(int threadId) { tid = threadId; }    // lab1 set tid
+  int getPriority() { return priority; }           // lab2 get priority
+  void setPriority(int prio) { priority = prio; }  // lab2 set priority
 
   private:
     // some of the private data for this class is listed above

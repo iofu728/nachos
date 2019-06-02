@@ -25,6 +25,9 @@
 #include "synch.h"
 #include "system.h"
 
+int nowReadListLen = 0;
+int tempReadListLen = 0;
+
 //----------------------------------------------------------------------
 // Semaphore::Semaphore
 // 	Initialize a semaphore, so that it can be used for synchronization.
@@ -100,13 +103,220 @@ Semaphore::V()
 // Dummy functions -- so we can compile our later assignments 
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
-Lock::Lock(char* debugName) {}
-Lock::~Lock() {}
-void Lock::Acquire() {}
-void Lock::Release() {}
 
-Condition::Condition(char* debugName) { }
-Condition::~Condition() { }
-void Condition::Wait(Lock* conditionLock) { ASSERT(FALSE); }
-void Condition::Signal(Lock* conditionLock) { }
-void Condition::Broadcast(Lock* conditionLock) { }
+// ----------------------------------------------------------------------
+// Lab 3 Lock
+// ----------------------------------------------------------------------
+
+Lock::Lock(char *debugName)
+{
+    name = debugName;
+    mutex = new Semaphore(name, 1);
+    thread = NULL;
+}
+
+Lock::~Lock() { delete mutex; }
+
+void Lock::Acquire()
+{
+    mutex->P();
+    thread = currentThread;
+}
+
+void Lock::Release()
+{
+    ASSERT(thread == currentThread);
+    thread = NULL;
+    mutex->V();
+}
+
+bool Lock::isHeldByCurrentThread() { return currentThread == thread; }
+
+// ----------------------------------------------------------------------
+// Lab 3 Condition
+// ----------------------------------------------------------------------
+
+Condition::Condition(char *debugName)
+{
+    name = debugName;
+    waitQueue = new List();
+    phase = new Lock("Two Phase Lock"); // lab 3 Challenge 1
+}
+
+Condition::~Condition()
+{
+    delete waitQueue;
+    delete phase;
+}
+
+void Condition::Wait(Lock *conditionLock)
+{
+    // ASSERT(FALSE);
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    conditionLock->Release();
+    waitQueue->Append((Thread *)currentThread);
+    currentThread->Sleep();
+    conditionLock->Acquire();
+    (void)interrupt->SetLevel(oldLevel);
+}
+
+void Condition::Signal(Lock *conditionLock)
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    Thread *thread;
+    if (conditionLock->isHeldByCurrentThread())
+    {
+        thread = (Thread *)waitQueue->Remove();
+        if (thread != NULL)
+        {
+            scheduler->ReadyToRun(thread);
+        }
+    }
+
+    (void)interrupt->SetLevel(oldLevel);
+}
+
+void Condition::Broadcast(Lock *conditionLock)
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    Thread *thread;
+    if (conditionLock->isHeldByCurrentThread())
+    {
+        thread = (Thread *)waitQueue->Remove();
+        while (thread != NULL)
+        {
+            scheduler->ReadyToRun(thread);
+            thread = (Thread *)waitQueue->Remove();
+        }
+    }
+    (void)interrupt->SetLevel(oldLevel);
+}
+
+void Condition::BroadcastPhase(Lock *conditionLock)
+{ // lab 3 Challenge 1
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    Thread *thread;
+    nowReadListLen = scheduler->getReadyListLen();
+
+    printf("Now ReadyList len is %d\n", nowReadListLen);
+    printf("wait Queue len is%d\n", waitQueue->NumInList());
+    if (conditionLock->isHeldByCurrentThread())
+    {
+        thread = (Thread *)waitQueue->Remove();
+        while (thread != NULL)
+        {
+            thread->setPriority(1);
+            scheduler->ReadyToRun(thread);
+            thread = (Thread *)waitQueue->Remove();
+        }
+    }
+    (void)interrupt->SetLevel(oldLevel);
+    phase->Release();
+}
+
+void Condition::AcquirePhase() { phase->Acquire(); }
+
+void Condition::ReleasePhase() { phase->Release(); }
+
+// ----------------------------------------------------------------------
+// Lab 3 Challenge 1 Barrier Two Phase Protocol
+// ----------------------------------------------------------------------
+
+Barrier::Barrier(char *debugName, int num)
+{
+    name = debugName;
+    waitNum = num;
+    totalNum = num;
+    ASSERT(waitNum > 0); // waitNum must > 0
+    bl = new Lock("Barrier Lock");
+    bc = new Condition("Barrier Condition");
+}
+
+Barrier::~Barrier()
+{
+    delete bl;
+    delete bc;
+}
+
+void Barrier::setBarrier()
+{
+    bl->Acquire();
+    if (!waitNum)
+    {
+        bc->AcquirePhase();
+        if (!waitNum)
+        {
+            waitNum = totalNum;
+            printf("-------***------- Consumer Phase End -------***-------\n");
+            printf("-------***------- Queue Phase Begin -------***-------\n");
+        }
+        bc->ReleasePhase();
+    }
+    printf("### Thread %s enter Barrier! ###\n", currentThread->getName());
+
+    --waitNum;
+
+    if (!waitNum)
+    {
+        bc->AcquirePhase();
+        printf("-------***------- Queue Phase End -------***-------\n");
+        printf("-------***------- Consumer Phase Begin -------***-------\n");
+        bc->BroadcastPhase(bl);
+    }
+    else
+    {
+        bc->Wait(bl);
+    }
+    printf("### Thread %s quit Barrier! ###\n", currentThread->getName());
+    bl->Release();
+}
+
+// ----------------------------------------------------------------------
+// Lab 3 Challenge 2 ReadWrite Lock
+// ----------------------------------------------------------------------
+
+ReadWrite::ReadWrite(char *debugName)
+{
+    name = debugName;
+    readNum = 0;
+    mutex = new Lock("Mutex Lock");
+    rlock = new Lock("Read Lock");
+    wlock = new Lock("Write Lock");
+}
+
+ReadWrite::~ReadWrite()
+{
+    delete mutex;
+    delete rlock;
+    delete wlock;
+}
+
+void ReadWrite::ReadAcquire()
+{
+    rlock->Acquire();
+    if (!readNum)
+        mutex->Acquire();
+    ++readNum;
+    rlock->Release();
+}
+
+void ReadWrite::ReadRelease()
+{
+    rlock->Acquire();
+    --readNum;
+    if (!readNum)
+        mutex->Release();
+    rlock->Release();
+}
+
+void ReadWrite::WriteAcquire()
+{
+    wlock->Acquire();
+    mutex->Acquire();
+}
+
+void ReadWrite::WriteRelease()
+{
+    mutex->Release();
+    wlock->Release();
+}
