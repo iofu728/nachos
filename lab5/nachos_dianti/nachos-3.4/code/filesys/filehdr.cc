@@ -126,7 +126,7 @@ int
 FileHeader::ByteToSector(int offset)
 {
     int maxDirectSet = int(MaxDirectNum) * int(SectorSize);
-    printf("MaxMaxFileSize%d\n", MaxFileSize);
+    printf("MaxMaxFileSize: %d\n", MaxFileSize);
     if (offset < maxDirectSet) {
         return(dataSectors[offset / SectorSize]);
     } else {
@@ -287,4 +287,27 @@ char* getFileType(char *name){
     char *dot = strrchr(name, '.');
     if (!dot || dot == name) return "";
     return dot + 1;
+}
+
+//----------------------------------------------------------------------
+// FileHeader::Extend
+// 	Extend file length
+//----------------------------------------------------------------------
+
+bool FileHeader::Extend(BitMap *freeMap, int bytes){
+    numBytes = numBytes + bytes;
+    int initialSector = numSectors;
+    numSectors = divRoundUp(numBytes, SectorSize);
+    if (initialSector == numSectors)
+        return TRUE;
+    if (freeMap->NumClear() < numSectors - initialSector) {
+        return FALSE;
+    }
+    printf("\033[91m Extend %d Sectors \n\033[0m", numSectors - initialSector);
+    for (int i = initialSector; i < numSectors; ++i){
+        int NowSector = freeMap->Find();
+        printf("Extend Sector Id: %d, Sector: %d\n", i, NowSector);
+        dataSectors[i] = NowSector;
+    }
+    return TRUE;
 }

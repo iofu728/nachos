@@ -78,6 +78,7 @@ class FileHeader {
     }
                                 // lab5 set file type
     int SectorPos;              // lab5 sector position
+    bool Extend(BitMap *freeMap, int bytes); // lab 5 extend file length
 
   private:
     int numBytes;			// Number of bytes in the file

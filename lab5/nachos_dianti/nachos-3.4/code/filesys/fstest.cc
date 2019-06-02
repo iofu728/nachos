@@ -112,7 +112,7 @@ Print(char *name)
 #define FileName 	"TestFile"
 #define Contents 	"1234567890"
 #define ContentSize 	strlen(Contents)
-#define FileSize 	((int)(ContentSize * 5000))
+#define FileSize 	((int)(ContentSize * 20))
 
 static void 
 FileWrite()
@@ -132,12 +132,13 @@ FileWrite()
 	return;
     }
     for (i = 0; i < FileSize; i += ContentSize) {
+        printf("\033[91m Writing bytes %d to %d, Need: %d \033[0m \n", i, ContentSize, FileSize);
         numBytes = openFile->Write(Contents, ContentSize);
-	if (numBytes < 10) {
-	    printf("Perf test: unable to write %s\n", FileName);
-	    delete openFile;
-	    return;
-	}
+        if (numBytes < 10) {
+            printf("Perf test: unable to write %s\n", FileName);
+            delete openFile;
+            return;
+        }
     }
     delete openFile;	// close file
 }
@@ -153,11 +154,13 @@ FileRead()
 	FileSize, ContentSize);
 
     if ((openFile = fileSystem->Open(FileName)) == NULL) {
-	printf("Perf test: unable to open file %s\n", FileName);
-	delete [] buffer;
-	return;
+        printf("Perf test: unable to open file %s\n", FileName);
+        delete [] buffer;
+        return;
     }
+    printf("\033[92m NumBytes: %d \033[0m \n", numBytes);
     for (i = 0; i < FileSize; i += ContentSize) {
+        printf("\033[92m Read bytes %d to %d, Need: %d \033[0m \n", i, ContentSize, FileSize);
         numBytes = openFile->Read(buffer, ContentSize);
 	if ((numBytes < 10) || strncmp(buffer, Contents, ContentSize)) {
 	    printf("Perf test: unable to read %s\n", FileName);
@@ -176,11 +179,14 @@ PerformanceTest()
     printf("Starting file system performance test:\n");
     stats->Print();
     FileWrite();
+    printf("\033[91m Write Over \n \033[0m");
     FileRead();
+    printf("\033[91m Read Over \n \033[0m");
     if (!fileSystem->Remove(FileName)) {
       printf("Perf test: unable to remove %s\n", FileName);
       return;
     }
+    printf("\033[91m Remove Over \n \033[0m");
     stats->Print();
 }
 

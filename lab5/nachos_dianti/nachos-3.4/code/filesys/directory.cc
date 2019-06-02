@@ -283,25 +283,25 @@ int Directory::FindDir(char *name){
 
 
 char *Directory::FindName(char *name){
-    printf("1111112\n");
+    // printf("1111112\n");
     
     char fileName[FileNameMaxLen + 1];
-    printf("1111113, %s %d\n", name, strlen(name));
+    // printf("1111113, %s %d\n", name, strlen(name));
     int pos = -1;
     for (int i = strlen(name) - 1; i >= 0; --i)
         if (name[i] == '/') {
             pos = i + 1;
             break;
         }
-    printf("1111114\n");
+    // printf("1111114\n");
     if (pos == -1) pos = 0;
     int j = 0;
-    printf("1111115\n");
+    // printf("1111115\n");
     for (int i = pos; i < strlen(name); ++i)
         fileName[j++] = name[i];
-    printf("1111116\n");
+    // printf("1111116\n");
     fileName[j] = '\0';
-    printf("1111117, %s\n", fileName);
+    // printf("1111117, %s\n", fileName);
     char *nameFile = fileName;
     printf("%s\n", nameFile);
     return nameFile;

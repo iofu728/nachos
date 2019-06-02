@@ -285,15 +285,8 @@ FileSystem::Open(char *name)
     DEBUG('f', "Opening file %s\n", name);
     directory->FetchFrom(directoryFile);
     sector = directory->Find(name); 
-    directory = new Directory(NumDirEntries);
     if (sector >= 0) 		
-	    openFile = new OpenFile(sector);	// name was found in directory 
-    directory->FetchFrom(openFile);
-    char fileName[FileNameMaxLen + 1];
-    strncpy(fileName, directory->FindName(name), FileNameMaxLen);
-    sector = directory->Find(fileName);
-    if (sector >= 0) 
-        openFile = new OpenFile(sector);
+	openFile = new OpenFile(sector);	// name was found in directory 
     delete directory;
     return openFile;				// return NULL if not found
 }
@@ -342,20 +335,20 @@ FileSystem::Remove(char *name)
         OpenFile *currentFile = new OpenFile(sector);
         currentDir->FetchFrom(currentFile);
         int tableSize = currentDir->GetTableSize();
-        DirectoryEntry *table = new DirectoryEntry[tableSize];
-        table = currentDir->GetTable();
-        for (int i = 0; i < tableSize; ++i){
-            if (table[i].inUse)
-                currentDir->Remove(table[i].name);
-        }
-        
-        // if (!currentDir->IsEmpty()) {
-        //     printf("Current Dir not Empty!");
-        //     delete directory;
-        //     delete currentDir;
-        //     delete currentFile;
-        //     return FALSE;
+        // DirectoryEntry *table = new DirectoryEntry[tableSize];
+        // table = currentDir->GetTable();
+        // for (int i = 0; i < tableSize; ++i){
+        //     if (table[i].inUse)
+        //         currentDir->Remove(table[i].name);
         // }
+        
+        if (!currentDir->IsEmpty()) {
+            printf("Current Dir not Empty!");
+            delete directory;
+            delete currentDir;
+            delete currentFile;
+            return FALSE;
+        }
         delete currentDir;
         delete currentFile;
     }
@@ -366,14 +359,21 @@ FileSystem::Remove(char *name)
     freeMap->FetchFrom(freeMapFile);
 
     fileHdr->Deallocate(freeMap);  		// remove data blocks
-    freeMap->Clear(sector);			// remove header block
+    freeMap->Clear(sector);			    // remove header block
+    printf("1111-1\n");
     directory->Remove(fileName);
+    printf("1111-2\n");
 
     freeMap->WriteBack(freeMapFile);		// flush to disk
+    printf("1111-4\n");
     directory->WriteBack(directoryFile);        // flush to disk
+    printf("1111-3\n");
     delete fileHdr;
+    printf("1111-3\n");
     delete directory;
+    printf("1111-3\n");
     delete freeMap;
+    printf("1111-3\n");
     return TRUE;
 } 
 

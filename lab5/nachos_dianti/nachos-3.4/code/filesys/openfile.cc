@@ -154,17 +154,29 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 int
 OpenFile::WriteAt(char *from, int numBytes, int position)
 {
-    printf("221\n");
+    // printf("221\n");
     int fileLength = hdr->FileLength();
-    printf("222\n");
+    // printf("222\n");
     int i, firstSector, lastSector, numSectors;
     bool firstAligned, lastAligned;
     char *buf;
+    printf("Position: %d, FileLength: %d, NumBytes: %d \n", position, fileLength, numBytes);
+    if ((numBytes <= 0))
+	    return 0;				// check request
+    if ((position + numBytes) > fileLength) {
+        // printf("Will Extend Length %d \n", position + numBytes - fileLength);
+	    // numBytes = fileLength - position; // lab 5 extend file length
+        OpenFile *freeMapFile = new OpenFile(0);
+        BitMap *freeMap = new BitMap(NumSectors);
+        freeMap->FetchFrom(freeMapFile);
+        hdr->Extend(freeMap, position + numBytes - fileLength);
+        printf("Sector Id: %d\n", hdr->SectorPos);
+        hdr->Print();
+        hdr->WriteBack(hdr->SectorPos);
+        freeMap->WriteBack(freeMapFile);
+        delete freeMapFile;
+    }
 
-    if ((numBytes <= 0) || (position >= fileLength))
-	return 0;				// check request
-    if ((position + numBytes) > fileLength)
-	numBytes = fileLength - position;
     DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n", 	
 			numBytes, position, fileLength);
 
