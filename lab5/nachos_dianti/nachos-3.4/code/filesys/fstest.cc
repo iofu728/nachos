@@ -199,3 +199,24 @@ void CreateDir(char *name){
     printf("\033[93m Begin Create Dir \n\033[0m");
     fileSystem->Create(name, -1);
 }
+
+
+//----------------------------------------------------------------------
+// SynchConsoleTest
+// 	Test the synch console by echoing characters typed at the input onto
+//	the output.  Stop when the user types a 'q'.
+//----------------------------------------------------------------------
+
+static SynchConsole *synchConsole;
+
+void SynchConsoleTest (char *in, char *out)
+{
+    char ch;
+    synchConsole = new SynchConsole(in, out);
+    
+    for (;;) {
+        ch = synchConsole->GetChar();
+        synchConsole->PutChar(ch);	// echo it!
+        if (ch == 'q') return;  // if q, quit
+    }
+}

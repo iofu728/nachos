@@ -107,3 +107,61 @@ SynchDisk::RequestDone()
 { 
     semaphore->V();
 }
+
+
+//----------------------------------------------------------------------
+// DiskRequestDone
+// 	Disk interrupt handler.  Need this to be a C routine, because 
+//	C++ can't handle pointers to member functions.
+//----------------------------------------------------------------------
+
+static Semaphore *readAvail = new Semaphore("Read avail", 0);
+static Semaphore *writeDone = new Semaphore("Write Done", 0);
+static void ReadAvail(int arg) { readAvail->V();}
+static void WriteDone(int arg) { writeDone->V();}
+
+//----------------------------------------------------------------------
+// SynchConsole::SynchConsole
+// lab 5 synch console
+//----------------------------------------------------------------------
+
+SynchConsole::SynchConsole(char* readFile, char *writeFile){
+    lock = new Lock("synch console lock");
+    console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
+}
+
+//----------------------------------------------------------------------
+// SynchConsole::~SynchConsole
+// 	De-allocate data structures needed for the synchronous console
+//	abstraction.
+//----------------------------------------------------------------------
+
+SynchConsole::~SynchConsole(){
+    delete console;
+    delete lock;
+}
+
+//----------------------------------------------------------------------
+// SynchConsole::~PutChar
+// 	lab 5 synch console put char
+//----------------------------------------------------------------------
+
+void SynchConsole::PutChar(char ch){
+    lock->Acquire();
+    console->PutChar(ch);
+    writeDone->P();
+    lock->Release();
+}
+
+//----------------------------------------------------------------------
+// SynchConsole::~GetChar
+// 	lab 5 synch console get char
+//----------------------------------------------------------------------
+
+char SynchConsole::GetChar(){
+    lock->Acquire();
+    readAvail->P();
+    char ch = console->GetChar();
+    lock->Release();
+    return ch;
+}
