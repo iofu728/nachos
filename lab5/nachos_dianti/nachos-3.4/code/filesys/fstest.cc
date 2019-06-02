@@ -112,11 +112,12 @@ Print(char *name)
 #define FileName 	"TestFile"
 #define Contents 	"1234567890"
 #define ContentSize 	strlen(Contents)
-#define FileSize 	((int)(ContentSize * 20))
+#define FileSize 	((int)(ContentSize))
 
 static void 
 FileWrite()
 {
+    printf("\033[94m Begin Write %s\033[0m \n", currentThread->getName());
     OpenFile *openFile;    
     int i, numBytes;
 
@@ -146,6 +147,7 @@ FileWrite()
 static void 
 FileRead()
 {
+    printf("\033[94m Begin Read %s\033[0m \n", currentThread->getName());
     OpenFile *openFile;    
     char *buffer = new char[ContentSize];
     int i, numBytes;
@@ -173,9 +175,8 @@ FileRead()
     delete openFile;	// close file
 }
 
-void
-PerformanceTest()
-{
+
+void test1_process(){
     printf("Starting file system performance test:\n");
     stats->Print();
     FileWrite();
@@ -189,6 +190,53 @@ PerformanceTest()
     printf("\033[91m Remove Over \n \033[0m");
     stats->Print();
 }
+
+void read(int which){
+    FileRead();
+}
+
+void write(int which){
+    FileWrite();
+}
+
+Thread *createRWTest(int Type, char *threadNameList)
+{
+    Thread *temp = new Thread(threadNameList);
+    if(Type == 0) 
+        temp->Fork(write, (void *)1);
+    else
+        temp->Fork(read, (void *)1);
+    temp->setPriority(2);
+    return temp;
+}
+
+void test2_process(){ // lab 5 exercise 7
+    printf("Starting file system performance test:\n");
+
+    int maxThreadNum = 3;
+    char threadNameList[maxThreadNum][20] = {};
+
+    for (int i = 0; i < maxThreadNum - 1; ++i)
+    {
+        char str[20];
+        sprintf(str, "%d", i);
+        strcat(threadNameList[i], "Thread");
+        strcat(threadNameList[i], str);
+        createRWTest(i, threadNameList[i]);
+    }
+    for (int i = 0; i < maxThreadNum - 1; ++i){
+        currentThread->Yield();
+    }
+
+    printf("%s Remove the file\n", currentThread->getName());
+    fileSystem->Remove(FileName);
+}
+
+void PerformanceTest() {
+    // test1_process();
+    test2_process();
+}
+
 
 
 //----------------------------------------------------------------------
@@ -220,3 +268,4 @@ void SynchConsoleTest (char *in, char *out)
         if (ch == 'q') return;  // if q, quit
     }
 }
+

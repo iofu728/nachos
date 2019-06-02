@@ -50,6 +50,7 @@
 #include "directory.h"
 #include "filehdr.h"
 #include "filesys.h"
+#include "system.h"
 
 // Sectors containing the file headers for the bitmap of free sectors,
 // and the directory of files.  These file headers are placed in well-known 
@@ -201,7 +202,7 @@ FileSystem::Create(char *name, int initialSize)
     OpenFile *nameDir = new OpenFile(nameSector);
     directory->FetchFrom(nameDir);
     char fileName[FileNameMaxLen + 1];
-    printf("%s\n", directory->FindName(name));
+    DEBUG('f', "%s\n", directory->FindName(name));
     strncpy(fileName, directory->FindName(name), FileNameMaxLen);
     
 
@@ -248,7 +249,7 @@ FileSystem::Create(char *name, int initialSize)
                 {
                     success = TRUE;
                     hdr->HeaderInit(getFileType(name), sector);
-                    printf("FileType: %s, Sector: %d\n", getFileType(name), sector);
+                    DEBUG('f', "FileType: %s, Sector: %d\n", getFileType(name), sector);
                     // hdr->SectorPos = sector;
                     // everthing worked, flush all changes back to disk
                     hdr->WriteBack(sector);
@@ -314,6 +315,10 @@ FileSystem::Remove(char *name)
     OpenFile *openfile = NULL;
     int sector;
     int dirSector;
+    if (synchDisk->numVisitors[sector]) {
+        DEBUG('f', "Can't Remove This File !!!\n");
+        return FALSE;
+    }
     
     directory = new Directory(NumDirEntries);
     directory->FetchFrom(directoryFile);
@@ -343,7 +348,7 @@ FileSystem::Remove(char *name)
         // }
         
         if (!currentDir->IsEmpty()) {
-            printf("Current Dir not Empty!");
+            DEBUG('f', "Current Dir not Empty!");
             delete directory;
             delete currentDir;
             delete currentFile;
@@ -360,20 +365,20 @@ FileSystem::Remove(char *name)
 
     fileHdr->Deallocate(freeMap);  		// remove data blocks
     freeMap->Clear(sector);			    // remove header block
-    printf("1111-1\n");
+    DEBUG('f', "1111-1\n");
     directory->Remove(fileName);
-    printf("1111-2\n");
+    DEBUG('f', "1111-2\n");
 
     freeMap->WriteBack(freeMapFile);		// flush to disk
-    printf("1111-4\n");
+    DEBUG('f', "1111-4\n");
     directory->WriteBack(directoryFile);        // flush to disk
-    printf("1111-3\n");
+    DEBUG('f', "1111-3\n");
     delete fileHdr;
-    printf("1111-3\n");
+    DEBUG('f', "1111-3\n");
     delete directory;
-    printf("1111-3\n");
+    DEBUG('f', "1111-3\n");
     delete freeMap;
-    printf("1111-3\n");
+    DEBUG('f', "1111-3\n");
     return TRUE;
 } 
 

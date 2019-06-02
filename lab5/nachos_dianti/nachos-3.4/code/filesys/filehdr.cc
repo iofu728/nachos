@@ -126,15 +126,15 @@ int
 FileHeader::ByteToSector(int offset)
 {
     int maxDirectSet = int(MaxDirectNum) * int(SectorSize);
-    printf("MaxMaxFileSize: %d\n", MaxFileSize);
+    DEBUG('f', "MaxMaxFileSize: %d\n", MaxFileSize);
     if (offset < maxDirectSet) {
         return(dataSectors[offset / SectorSize]);
     } else {
         int sector_pos = (offset - maxDirectSet) / SectorSize;
-        printf("MaxDirectNum: %d, SectorSize: %d, Offset: %d, Sector pos: %d, MaxDirectSet: %d\n", MaxDirectNum, SectorSize, offset, sector_pos, maxDirectSet);
+        DEBUG('f', "MaxDirectNum: %d, SectorSize: %d, Offset: %d, Sector pos: %d, MaxDirectSet: %d\n", MaxDirectNum, SectorSize, offset, sector_pos, maxDirectSet);
         char *indirect_index = new char[SectorSize];
         synchDisk->ReadSector(dataSectors[MaxDirectNum], indirect_index);
-        printf("Return: %d\n", int(indirect_index[sector_pos * 4]));
+        DEBUG('f', "Return: %d\n", int(indirect_index[sector_pos * 4]));
         return int(indirect_index[sector_pos * 4]);
     }
     
@@ -230,7 +230,7 @@ FileHeader::Print()
 //----------------------------------------------------------------------
 
 void FileHeader::HeaderInit(char *fileType, int sector){
-    printf("\033[93m File Type: %s \033[0m\n", fileType);
+    DEBUG('f', "\033[93m File Type: %s \033[0m\n", fileType);
     SectorPos = sector;
     setFileType(fileType);
     SetCreateTime();
@@ -249,7 +249,7 @@ void setTime(char *paramName, char *name){
     struct tm *timeinfo = localtime(&timep);
     strncpy(paramName, asctime(timeinfo), 25);
     paramName[24] = '\0';
-    printf("\033[92m %s: %s \n \033[0m", name, paramName);
+    DEBUG('f', "\033[92m %s: %s \n \033[0m", name, paramName);
 }
 
 //----------------------------------------------------------------------
@@ -303,10 +303,10 @@ bool FileHeader::Extend(BitMap *freeMap, int bytes){
     if (freeMap->NumClear() < numSectors - initialSector) {
         return FALSE;
     }
-    printf("\033[91m Extend %d Sectors \n\033[0m", numSectors - initialSector);
+    DEBUG('f', "\033[91m Extend %d Sectors \n\033[0m", numSectors - initialSector);
     for (int i = initialSector; i < numSectors; ++i){
         int NowSector = freeMap->Find();
-        printf("Extend Sector Id: %d, Sector: %d\n", i, NowSector);
+        DEBUG('f', "Extend Sector Id: %d, Sector: %d\n", i, NowSector);
         dataSectors[i] = NowSector;
     }
     return TRUE;

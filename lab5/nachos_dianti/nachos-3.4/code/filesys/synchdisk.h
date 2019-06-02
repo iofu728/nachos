@@ -40,15 +40,23 @@ class SynchDisk {
     void WriteSector(int sectorNumber, char* data);
     
     void RequestDone();			// Called by the disk device interrupt
-					// handler, to signal that the
-					// current disk operation is complete.
+					                  // handler, to signal that the
+					                  // current disk operation is complete.
+    void PlusRead(int sector);        // lab 5 plus read
+    void MinusRead(int sector);       // lab 5 minus read
+    void BeginWrite(int sector);      // lab 5 begin write
+    void EndWrite(int sector);        // lab 5 end write
+    int numVisitors[NumSectors]; // lab 5 collect visitors num
 
   private:
-    Disk *disk;		  		// Raw disk device
+    Disk *disk;		  	      	// Raw disk device
     Semaphore *semaphore; 		// To synchronize requesting thread 
-					// with the interrupt handler
-    Lock *lock;		  		// Only one read/write request
-					// can be sent to the disk at a time
+					                    // with the interrupt handler
+    Lock *lock;		  	      	// Only one read/write request
+					                    // can be sent to the disk at a time
+    Semaphore *mutex[NumSectors]; // lab 5 file access semaphore
+    int numReaders[NumSectors]; // lab 5 num of readers
+    Lock *readLock;            // lab 5 read lock 
 };
 
 class SynchConsole {

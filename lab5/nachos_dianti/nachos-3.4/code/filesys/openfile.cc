@@ -31,9 +31,10 @@ OpenFile::OpenFile(int sector)
 { 
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
-    printf("Init Open file Sector %d\n", sector);
+    DEBUG('f', "Init Open file Sector %d\n", sector);
     hdr->SectorPos = sector;
     seekPosition = 0;
+    ++synchDisk->numVisitors[hdr->SectorPos];
 }
 
 //----------------------------------------------------------------------
@@ -43,7 +44,7 @@ OpenFile::OpenFile(int sector)
 
 OpenFile::~OpenFile()
 {
-    printf("Exit openfile %d\n", hdr->SectorPos);
+    DEBUG('f', "Exit openfile %d\n", hdr->SectorPos);
     hdr->WriteBack(hdr->SectorPos); // Update the header info
     delete hdr;
 }
@@ -78,16 +79,24 @@ OpenFile::Seek(int position)
 int
 OpenFile::Read(char *into, int numBytes)
 {
+   DEBUG('f', "Plus File Sector: %d\n", hdr->SectorPos);
+   synchDisk->PlusRead(hdr->SectorPos);  // lab 5 synchDisk
    int result = ReadAt(into, numBytes, seekPosition);
+   currentThread->Yield(); // lab 5 for test
    seekPosition += result;
+   synchDisk->MinusRead(hdr->SectorPos);
    return result;
 }
 
 int
 OpenFile::Write(char *into, int numBytes)
 {
+   DEBUG('f', "File Sector: %d, test for synchDisk: %d\n", hdr->SectorPos, synchDisk->numVisitors[0]);
+   synchDisk->BeginWrite(hdr->SectorPos);
    int result = WriteAt(into, numBytes, seekPosition);
+   currentThread->Yield(); // lab 5 for test
    seekPosition += result;
+   synchDisk->EndWrite(hdr->SectorPos);
    return result;
 }
 
@@ -137,7 +146,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 
     // read in all the full and partial sectors that we need
     buf = new char[numSectors * SectorSize];
-    printf("LastSector: %d\n", lastSector);
+    DEBUG('f', "LastSector: %d\n", lastSector);
     for (i = firstSector; i <= lastSector; i++)	
         synchDisk->ReadSector(hdr->ByteToSector(i * SectorSize), 
 					&buf[(i - firstSector) * SectorSize]);
@@ -154,23 +163,23 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
 int
 OpenFile::WriteAt(char *from, int numBytes, int position)
 {
-    // printf("221\n");
+    // DEBUG('f', "221\n");
     int fileLength = hdr->FileLength();
-    // printf("222\n");
+    // DEBUG('f', "222\n");
     int i, firstSector, lastSector, numSectors;
     bool firstAligned, lastAligned;
     char *buf;
-    printf("Position: %d, FileLength: %d, NumBytes: %d \n", position, fileLength, numBytes);
+    DEBUG('f', "Position: %d, FileLength: %d, NumBytes: %d \n", position, fileLength, numBytes);
     if ((numBytes <= 0))
 	    return 0;				// check request
     if ((position + numBytes) > fileLength) {
-        // printf("Will Extend Length %d \n", position + numBytes - fileLength);
+        // DEBUG('f', "Will Extend Length %d \n", position + numBytes - fileLength);
 	    // numBytes = fileLength - position; // lab 5 extend file length
         OpenFile *freeMapFile = new OpenFile(0);
         BitMap *freeMap = new BitMap(NumSectors);
         freeMap->FetchFrom(freeMapFile);
         hdr->Extend(freeMap, position + numBytes - fileLength);
-        printf("Sector Id: %d\n", hdr->SectorPos);
+        DEBUG('f', "Sector Id: %d\n", hdr->SectorPos);
         hdr->Print();
         hdr->WriteBack(hdr->SectorPos);
         freeMap->WriteBack(freeMapFile);

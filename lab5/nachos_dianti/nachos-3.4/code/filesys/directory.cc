@@ -46,7 +46,7 @@ Directory::Directory(int size)
         // table[i].sector = 0;
     }
     for (int i = 0; i < tableSize; i++)
-        printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
+        DEBUG('f', "Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
 }
 
 //----------------------------------------------------------------------
@@ -69,13 +69,13 @@ Directory::~Directory()
 void
 Directory::FetchFrom(OpenFile *file)
 {
-    // printf("file name");
+    // DEBUG('f', "file name");
     Print();
 
     (void) file->ReadAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
     Print();
     // for (int i = 0; i < tableSize; i++)
-	//     printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
+	//     DEBUG('f', "Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
 }
 
 //----------------------------------------------------------------------
@@ -90,11 +90,11 @@ Directory::WriteBack(OpenFile *file)
 {
     Print();
     // for (int i = 0; i < tableSize; i++)
-	//     printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
+	//     DEBUG('f', "Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
     (void) file->WriteAt((char *)table, tableSize * sizeof(DirectoryEntry), 0);
     Print();
     // for (int i = 0; i < tableSize; i++)
-	//     printf("Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
+	//     DEBUG('f', "Id: %d, name: %s, inUse: %d, sector: %d\n", i, table[i].name, table[i].inUse, table[i].sector);
 }
 
 //----------------------------------------------------------------------
@@ -108,9 +108,9 @@ Directory::WriteBack(OpenFile *file)
 int
 Directory::FindIndex(char *name)
 {
-    printf("Need Name: %s\n", name);
+    DEBUG('f', "Need Name: %s\n", name);
     for (int i = 0; i < tableSize; i++) {
-        printf("%s %d %d\n", table[i].name, table[i].inUse, table[i].sector);
+        DEBUG('f', "%s %d %d\n", table[i].name, table[i].inUse, table[i].sector);
         if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen)) 
             return i;
             // char *tempName;
@@ -173,8 +173,8 @@ Directory::Add(char *name, int newSector, int type)
             table[i].sector = newSector;
             table[i].type = type;
             // nowNamePos += nameLen;
-            // printf("Directory Id: %d %d %d % d %d\n", i, table[i].inUse, table[i].name_len, table[i].name_pos, table[i].sector);
-            printf("Directory Id: %d %d %s %d %s %d\n", i, table[i].inUse, table[i].name, table[i].sector, table[i].path, table[i].type); 
+            // DEBUG('f', "Directory Id: %d %d %d % d %d\n", i, table[i].inUse, table[i].name_len, table[i].name_pos, table[i].sector);
+            DEBUG('f', "Directory Id: %d %d %s %d %s %d\n", i, table[i].inUse, table[i].name, table[i].sector, table[i].path, table[i].type); 
             return TRUE;
 	    }
     return FALSE;	// no space.  Fix when we have extensible files.
@@ -209,8 +209,8 @@ Directory::List()
 {
    for (int i = 0; i < tableSize; i++)
 	if (table[i].inUse)
-	    printf("Name: %s\n", table[i].name);
-        // printf("Name Len: %d, Name pos: %d\n", table[i].name_len, table[i].name_pos);
+	    DEBUG('f', "Name: %s\n", table[i].name);
+        // DEBUG('f', "Name Len: %d, Name pos: %d\n", table[i].name_len, table[i].name_pos);
 }
 
 //----------------------------------------------------------------------
@@ -283,27 +283,27 @@ int Directory::FindDir(char *name){
 
 
 char *Directory::FindName(char *name){
-    // printf("1111112\n");
+    // DEBUG('f', "1111112\n");
     
     char fileName[FileNameMaxLen + 1];
-    // printf("1111113, %s %d\n", name, strlen(name));
+    // DEBUG('f', "1111113, %s %d\n", name, strlen(name));
     int pos = -1;
     for (int i = strlen(name) - 1; i >= 0; --i)
         if (name[i] == '/') {
             pos = i + 1;
             break;
         }
-    // printf("1111114\n");
+    // DEBUG('f', "1111114\n");
     if (pos == -1) pos = 0;
     int j = 0;
-    // printf("1111115\n");
+    // DEBUG('f', "1111115\n");
     for (int i = pos; i < strlen(name); ++i)
         fileName[j++] = name[i];
-    // printf("1111116\n");
+    // DEBUG('f', "1111116\n");
     fileName[j] = '\0';
-    // printf("1111117, %s\n", fileName);
+    // DEBUG('f', "1111117, %s\n", fileName);
     char *nameFile = fileName;
-    printf("%s\n", nameFile);
+    DEBUG('f', "%s\n", nameFile);
     return nameFile;
 }
 
@@ -314,7 +314,7 @@ char *Directory::FindName(char *name){
 
 int Directory::GetType(char *name){
   for (int i = 0; i < tableSize; i++) {
-        printf("%s %d %d\n", table[i].name, table[i].inUse, table[i].sector);
+        DEBUG('f', "%s %d %d\n", table[i].name, table[i].inUse, table[i].sector);
         if (table[i].inUse && !strncmp(table[i].name, name, FileNameMaxLen)) 
             return table[i].type;
     }

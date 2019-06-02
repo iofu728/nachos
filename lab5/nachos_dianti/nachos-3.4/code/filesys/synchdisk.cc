@@ -45,6 +45,12 @@ SynchDisk::SynchDisk(char* name)
     semaphore = new Semaphore("synch disk", 0);
     lock = new Lock("synch disk lock");
     disk = new Disk(name, DiskRequestDone, (int) this);
+    readLock = new Lock("read lock");
+
+    for (int i = 0; i < NumSectors; i++) 
+        mutex[i] = new Semaphore("Mutex Sem", 0);
+        
+    
 }
 
 //----------------------------------------------------------------------
@@ -108,6 +114,55 @@ SynchDisk::RequestDone()
     semaphore->V();
 }
 
+//----------------------------------------------------------------------
+// SynchDisk::PlusRead
+// 	lab 5 Plus reader
+//----------------------------------------------------------------------
+
+void SynchDisk::PlusRead(int sector) { 
+    DEBUG('f', "Num Readers: %d\n", numReaders[sector]);
+    readLock->Acquire();
+    ++numReaders[sector];
+    if (numReaders[sector] == 1){
+        mutex[sector]->P();
+    }
+    printf("\033[91m Reader cnt: %d\n \033[0m", numReaders[sector]);
+    readLock->Acquire();
+}
+
+//----------------------------------------------------------------------
+// SynchDisk::MinusRead
+// 	lab 5 minus reader
+//----------------------------------------------------------------------
+
+void SynchDisk::MinusRead(int sector) { 
+    readLock->Acquire();
+    --numReaders[sector];
+    if (numReaders[sector] == 0){
+        mutex[sector]->V();
+    }
+    printf("\033[91m Reader cnt: %d\n \033[0m", numReaders[sector]);
+    readLock->Acquire();
+}
+
+
+//----------------------------------------------------------------------
+// SynchDisk::BeginWrite
+// 	lab 5 begin write
+//----------------------------------------------------------------------
+
+void SynchDisk::BeginWrite(int sector) { 
+    mutex[sector]->P();
+}
+
+//----------------------------------------------------------------------
+// SynchDisk::EndWrite
+// 	lab 5 end write
+//----------------------------------------------------------------------
+
+void SynchDisk::EndWrite(int sector) { 
+    mutex[sector]->V();
+}
 
 //----------------------------------------------------------------------
 // DiskRequestDone
