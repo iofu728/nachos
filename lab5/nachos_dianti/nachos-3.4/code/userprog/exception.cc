@@ -162,6 +162,81 @@ int ReadSyscallHandler() {
     delete kernelBuffer;
 }
 
+void ExecRoutine(int arg) {
+    currentThread->space->InitRegisters();
+    currentThread->space->RestoreState();
+    Machine *p = (Machine *)arg;
+    p->Run();
+}
+
+void ExecSyscallHandler() {
+    currentThread->SaveUserState();
+    // First, get the length of filename
+    int fileNameBase = machine->ReadRegister(4);
+    int value;
+    int length = 0;
+    do {
+        machine->ReadMem(fileNameBase++, 1, &value);
+        length++;
+    } while(value != '\0');
+
+    // Copy filename
+    char *fileName = new char[length];
+    fileNameBase -= length; length--;
+    for(int i = 0; i < length; i++) {
+        machine->ReadMem(fileNameBase++, 1, &value);
+        fileName[i] = char(value);
+    }
+    fileName[length] = '\0';
+    DEBUG('a', "Executable file name: %s\n", fileName);
+
+    OpenFile *executable = fileSystem->Open(fileName);
+
+    if(executable != NULL)
+        DEBUG('a', "Open file %s done\n", fileName);
+    else {
+        DEBUG('a', "Can not open file %s\n", fileName);
+        machine->WriteRegister(2, (int)executable);
+        return;
+    }
+
+    // Create an address space and a new thread
+    AddrSpace *addrSpace = new AddrSpace(executable);
+    Thread *forked = new Thread(fileName);
+    forked->space = addrSpace;
+
+    // Run user program
+    forked->Fork(ExecRoutine, (int)machine);
+    DEBUG('t', "Exec done\n");
+    currentThread->RestoreUserState();
+    machine->WriteRegister(2, (int)addrSpace);
+}
+
+void ForkRoutine(int arg) {
+    currentThread->space->RestoreState();
+
+    // Set PC to *arg*
+    machine->WriteRegister(PCReg, arg);
+    machine->WriteRegister(NextPCReg, arg + 4);
+    machine->Run();
+}
+
+void ForkSyscallHandler() {
+    currentThread->SaveUserState(); // Save Registers
+    int funcAddr = machine->ReadRegister(4);
+
+    // Create a new thread in the same addrspace
+    Thread *thread = new Thread("forked thread");
+    thread->space = currentThread->space;
+    thread->Fork(ForkRoutine, funcAddr);
+    currentThread->RestoreUserState(); // Save Registers
+}
+
+void YieldSyscallHandler() {
+    currentThread->SaveUserState(); // Save Registers
+    currentThread->Yield();
+    currentThread->RestoreUserState();
+}
 
 void
 ExceptionHandler(ExceptionType which)
@@ -198,6 +273,18 @@ ExceptionHandler(ExceptionType which)
         else if(type == SC_Read) {
             DEBUG('f', "\033[93m Syscall: Read\n\033[0m");
             ReadSyscallHandler();
+        }
+        else if(type == SC_Exec) {
+            DEBUG('f', "\033[91m Syscall: Exec\n\033[0m");
+            ExecSyscallHandler();
+        }
+        else if(type == SC_Fork) {
+            DEBUG('f', "\033[93m Syscall: Fork\n\033[0m");
+            ForkSyscallHandler();
+        }
+        else if(type == SC_Yield) {
+            DEBUG('f', "\033[93m  Syscall: Yield\n\033[0m");
+            YieldSyscallHandler();
         }
 
         // Increase PC
