@@ -1,7 +1,18 @@
 ## Operation System Lab Result by Jianpan Gun in 19.3-19.6
 
+| Lab                   | report                                                                         | Final Data |
+| --------------------- | ------------------------------------------------------------------------------ | ---------- |
+| Lab 1 Thread          | [Lab 1 report](https://github.com/iofu728/nachos/blob/develop/report/lab1.pdf) | 2019-03-08 |
+| Lab 2 Thread Schedule | [Lab 2 report](https://github.com/iofu728/nachos/blob/develop/report/lab2.pdf) | 2019-03-09 |
+| Lab 3 Thread IPC      | [Lab 3 report](https://github.com/iofu728/nachos/blob/develop/report/lab3.pdf) | 2019-03-22 |
+| Lab 4 Memory          | [Lab 4 report](https://github.com/iofu728/nachos/blob/develop/report/lab4.pdf) | 2019-05-11 |
+| Lab 5 FileSystem      | [Lab 5 report](https://github.com/iofu728/nachos/blob/develop/report/lab5.pdf) | 2019-06-02 |
+| Lab 6 System Call     | [Lab 6 report](https://github.com/iofu728/nachos/blob/develop/report/lab6.pdf) | 2019-06-03 |
 
 ## Lab4
+
+1. The order of `#inculude` is very import!!!
+2. More DEBUG than printf.
 
 ### Exercise 2
 
@@ -135,6 +146,10 @@ f_bit = n & (~(n - 1))
 
 ## Lab 5
 
+1. Maybe the work of Lab4 will trouble in Lab 5 about time_t and other!!!
+2. The Init FileSystem is necessary. `./nachos -f`
+3. You must delete the code of Thread in main.cc
+
 ### Trouble Shooting
 
 #### Segment fault when use time_h
@@ -150,12 +165,13 @@ ASSERT(openFile != NULL);
 
 you must run `./nachos -f` before other
 
-#### copy char* to char []
+#### copy char\* to char []
 
 you should use `strncpy` rather than `strcpy`
+
 ```
 strncpy(type, fileType, sizeof type - 1);
 type[sizeof type - 1] = '\0';
 ```
 
-- [如何在C中将char * str复制到char c []？](https://codeday.me/bug/20180921/256704.html)
+- [如何在 C 中将 char \* str 复制到 char c []？](https://codeday.me/bug/20180921/256704.html)
