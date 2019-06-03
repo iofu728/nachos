@@ -212,3 +212,13 @@ void Machine::WriteRegister(int num, int value)
 	registers[num] = value;
     }
 
+//----------------------------------------------------------------------
+// Machine::ReturnFromSyscall
+//   	Lab 6 Return from syscall
+//----------------------------------------------------------------------
+
+void Machine::ReturnFromSyscall() {
+    WriteRegister(PrevPCReg, registers[PCReg]);
+    WriteRegister(PCReg, registers[NextPCReg]);
+    WriteRegister(NextPCReg, registers[NextPCReg] + 4);
+} 
