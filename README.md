@@ -10,6 +10,11 @@
 | Lab 5 FileSystem      | [Lab 5 report](https://github.com/iofu728/nachos/blob/develop/report/lab5.pdf)       | 2019-06-02 |
 | Lab 6 System Call     | [Lab 6 report](https://github.com/iofu728/nachos/blob/develop/report/lab6.pdf)       | 2019-06-03 |
 | SpinLock XV6          | [SpinLock XV6](https://github.com/iofu728/nachos/blob/develop/discuss/3_xv6_ipc.pdf) | 2019-06-03 |
+| XV6 IPC               | [XV6 IPC](https://github.com/iofu728/nachos/blob/develop/xv6/XV6_IPC.pdf)            | 2019-06-13 |
+| XV6 Thread            | [XV6 Thread](https://github.com/iofu728/nachos/blob/develop/xv6/XV6_thread.pdf)      | 2019-06-15 |
+| XV6 FileSystem        | [XV6 FS](https://github.com/iofu728/nachos/blob/develop/xv6/XV6_fs.pdf)              | 2019-06-15 |
+| XV6 VitualMemory      | [XV6 VM](https://github.com/iofu728/nachos/blob/develop/xv6/XV6_vm.pdf)              | 2019-06-15 |
+| XV6 SysCall           | [XV6 SysCall](https://github.com/iofu728/nachos/blob/develop/xv6/XV6_syscall.pdf)    | 2019-06-16 |
 
 ## Lab4
 
