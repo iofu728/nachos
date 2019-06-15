@@ -2,3 +2,7 @@
 .vscode
 .history
 .devcontainer
+
+# vx6
+xv6/*.md
+xv6/*.html
